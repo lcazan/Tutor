@@ -30,6 +30,7 @@ h1{font-size:30px;margin:0 0 4px;text-align:center}
 #top button{font:inherit;font-weight:600;color:var(--math);background:none;border:0;min-height:44px;padding:0 12px;border-radius:12px;cursor:pointer}
 #top span{font-weight:700}
 #fr{flex:1;width:100%;border:0;background:var(--bg);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (orientation:landscape) and (max-height:620px){h1{font-size:26px}.sub{margin-bottom:14px}.tile{min-height:140px;padding:14px 12px}.ic{width:76px;height:76px;font-size:46px;border-radius:22px}}
 </style></head>
 <body>
 <main id="home">
@@ -40,15 +41,19 @@ h1{font-size:30px;margin:0 0 4px;text-align:center}
     <button class="tile w" onclick="openApp('word')"><div class="ic">📚</div><b>Words</b><span>Spelling, reading, sounds</span></button>
   </div>
 </main>
-<div id="view"><div id="top"><button onclick="history.back()" aria-label="Back to app list">← Apps</button><span id="ttl"></span></div><iframe id="fr" title="Tutor"></iframe></div>
+<div id="view"><div id="top"><button onclick="goBack()" aria-label="Back to app list">← Apps</button><span id="ttl"></span></div><iframe id="fr" title="Tutor"></iframe></div>
 <script>
 // To add another tutor later: add an entry here and a tile above.
 const APPS={math:{file:'math.html',title:'🧮 Math'},word:{file:'word.html',title:'📚 Words'}};
 const $=id=>document.getElementById(id),fr=$('fr'),view=$('view');
-function openApp(k){location.hash=k}
+let pushed=0;
+function openApp(k){pushed=1;location.hash=k}
+// Navigate the iframe with replace() so it adds no extra history entry (that caused the double-tap on Back).
+function go(u){try{fr.contentWindow.location.replace(u)}catch(e){fr.src=u}}
+function goBack(){if(pushed){pushed=0;history.back()}else{history.replaceState(null,'',location.pathname+location.search);route()}}
 function route(){const k=location.hash.slice(1),a=APPS[k];
-  if(a){if(fr.dataset.k!==k){fr.dataset.k=k;fr.src=a.file}$('ttl').textContent=a.title;view.classList.add('on')}
-  else{view.classList.remove('on');fr.removeAttribute('src');delete fr.dataset.k}}
+  if(a){if(fr.dataset.k!==k){fr.dataset.k=k;go(a.file)}$('ttl').textContent=a.title;view.classList.add('on')}
+  else{pushed=0;view.classList.remove('on');if(fr.dataset.k){delete fr.dataset.k;go('about:blank')}}}
 addEventListener('hashchange',route);route();
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('tutor-sw.js').catch(()=>{}));
 </script></body></html>
