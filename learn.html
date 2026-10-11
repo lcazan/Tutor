@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kids Tutor</title>
+<meta name="theme-color" content="#5b5bd6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Kids Tutor">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="tutor.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="tutor-192.png">
+<style>
+:root{--bg:#fbf7ee;--card:#fff;--ink:#2b2a33;--mut:#6b6a75;--line:#e6e0cf;--math:#5b5bd6;--word:#2f7be5}
+@media (prefers-color-scheme:dark){:root{--bg:#1a1920;--card:#262530;--ink:#f2f0f7;--mut:#a9a7b5;--line:#3a3946}}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:18px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+#home{height:100%;overflow:auto;padding:calc(env(safe-area-inset-top,0px) + 24px) 20px calc(env(safe-area-inset-bottom,0px) + 24px);display:flex;flex-direction:column;justify-content:center;max-width:560px;margin:0 auto}
+h1{font-size:30px;margin:0 0 4px;text-align:center}
+.sub{color:var(--mut);text-align:center;margin:0 0 28px;font-size:16px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:26px 12px 22px;min-height:190px;border-radius:26px;border:2px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tile:active{transform:scale(.97)}
+.tile:focus-visible{outline:3px solid var(--c);outline-offset:3px}
+.ic{width:104px;height:104px;border-radius:28px;display:flex;align-items:center;justify-content:center;font-size:62px;background:var(--c);box-shadow:0 6px 0 color-mix(in srgb,var(--c) 70%,#000)}
+.tile b{font-size:22px}.tile span{color:var(--mut);font-size:14px;text-align:center}
+.m{--c:var(--math)}.w{--c:var(--word)}
+#view{position:fixed;inset:0;display:none;flex-direction:column;background:var(--bg)}
+#view.on{display:flex}
+#top{display:flex;align-items:center;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 4px) 8px 4px;border-bottom:1px solid var(--line);background:var(--card);min-height:48px}
+#top button{font:inherit;font-weight:600;color:var(--math);background:none;border:0;min-height:44px;padding:0 12px;border-radius:12px;cursor:pointer}
+#top span{font-weight:700}
+#fr{flex:1;width:100%;border:0;background:var(--bg);padding-bottom:env(safe-area-inset-bottom,0px)}
+</style></head>
+<body>
+<main id="home">
+  <h1>Kids Tutor</h1>
+  <p class="sub">Pick what to practice today</p>
+  <div class="tiles">
+    <button class="tile m" onclick="openApp('math')"><div class="ic">🧮</div><b>Math</b><span>Numbers, puzzles, games</span></button>
+    <button class="tile w" onclick="openApp('word')"><div class="ic">📚</div><b>Words</b><span>Spelling, reading, sounds</span></button>
+  </div>
+</main>
+<div id="view"><div id="top"><button onclick="history.back()" aria-label="Back to app list">← Apps</button><span id="ttl"></span></div><iframe id="fr" title="Tutor"></iframe></div>
+<script>
+// To add another tutor later: add an entry here and a tile above.
+const APPS={math:{file:'math.html',title:'🧮 Math'},word:{file:'word.html',title:'📚 Words'}};
+const $=id=>document.getElementById(id),fr=$('fr'),view=$('view');
+function openApp(k){location.hash=k}
+function route(){const k=location.hash.slice(1),a=APPS[k];
+  if(a){if(fr.dataset.k!==k){fr.dataset.k=k;fr.src=a.file}$('ttl').textContent=a.title;view.classList.add('on')}
+  else{view.classList.remove('on');fr.removeAttribute('src');delete fr.dataset.k}}
+addEventListener('hashchange',route);route();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('tutor-sw.js').catch(()=>{}));
+</script></body></html>

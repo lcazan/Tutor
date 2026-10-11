@@ -1,0 +1,15 @@
+{
+  "name": "Kids Tutor",
+  "short_name": "Tutor",
+  "start_url": "./learn.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fbf7ee",
+  "theme_color": "#5b5bd6",
+  "icons": [
+    {"src": "tutor.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"},
+    {"src": "tutor-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "tutor-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}
