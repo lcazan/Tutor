@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Multiplication Quest — The Crystal Isles</title>
+<style>
+*{box-sizing:border-box;-webkit-user-select:none;user-select:none}
+html,body{margin:0;height:100%;overflow:hidden;background:#0b1a12}
+button{font:inherit;cursor:pointer;border:0;touch-action:manipulation}
+
+.screen{position:fixed;inset:0;background:#0b1a12;overflow:hidden;display:none}
+.screen.active{display:block}
+.stage{position:absolute;container-type:inline-size;aspect-ratio:3/2}
+@media(orientation:landscape){.stage{width:min(100vw,150svh);left:50%;top:50%;transform:translate(-50%,-50%)}}
+@media(orientation:portrait){.stage{height:100svh;width:150svh;left:0;top:0}}
+
+/* ===== Title / menu screen ===== */
+#titleScreen .stage{background:url("menu.png") 0 0/100% 100% no-repeat}
+.mainmenu{position:absolute;inset:0}
+.menu{position:absolute;left:4.3%;width:21.2%;height:9.3%;padding:0;border-radius:2.2cqw;background:transparent;box-shadow:none;
+ font-family:Cinzel,"Trajan Pro","Palatino Linotype","Book Antiqua",Palatino,Georgia,serif;font-size:3svh;font-size:2.55cqw;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.menu span{background:linear-gradient(#fff6c2,#f2c14e 52%,#a8741a);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 .2cqw .15cqw #000c)}
+.menu:hover,.menu:focus-visible{background:radial-gradient(ellipse at center,#fbbf2447,#fbbf2400 72%);outline:.3cqw solid #fde68a}
+.menu:active{background:radial-gradient(ellipse at center,#fbbf2488,#fbbf2400 75%)}
+.gametitle{position:absolute;right:3.5%;bottom:3%;text-align:right;pointer-events:none;margin:0;
+ font-family:Cinzel,"Trajan Pro","Palatino Linotype","Book Antiqua",Palatino,Georgia,serif;font-size:4.2cqw;line-height:1.05;letter-spacing:.06em;text-transform:uppercase;
+ background:linear-gradient(#fff6c2,#f2c14e 55%,#a8741a);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 .3cqw .3cqw #000d)}
+.gametitle small{display:block;font-size:1.9cqw;letter-spacing:.3em;margin-top:.5cqw}
+
+/* ===== Gameplay screen (scene 1 — blocked path) ===== */
+#gameScreen .stage{container-type:inline-size;overflow:hidden;aspect-ratio:1264/826}
+.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;display:block}
+
+.scroll-wrap{position:absolute;left:1.5%;top:4%;width:28%;height:80%;
+ opacity:0;transform:translateX(-6%) scaleY(.85);transform-origin:top;z-index:40;
+ transition:opacity .6s ease, transform .7s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+.scroll-wrap.show{opacity:1;transform:translateX(0) scaleY(1);pointer-events:auto}
+.scroll-bg{position:relative;width:100%;height:100%;overflow-y:auto;
+ background:radial-gradient(ellipse at center, #f3e3bf 0%, #e8d4a3 55%, #d8bd80 100%);
+ border:.6cqw solid #6b4a24;border-radius:1.2cqw;
+ box-shadow:0 1cqw 3cqw #000a, inset 0 0 1.5cqw #6b4a2455;
+ padding:5%;display:flex;flex-direction:column;align-items:center;text-align:center}
+
+.speaker-btn{width:16%;aspect-ratio:1;border-radius:50%;background:radial-gradient(#fff6c2,#f2c14e 60%,#a8741a);
+ box-shadow:0 .4cqw .8cqw #0007, inset 0 0 .5cqw #fff8;display:flex;align-items:center;justify-content:center;
+ margin-bottom:6%;font-size:5.5cqw;color:#5c3f1c;animation:pulse 2s ease-in-out infinite;flex-shrink:0}
+.speaker-btn.idle{animation:none;opacity:.55}
+@keyframes pulse{0%,100%{box-shadow:0 .4cqw .8cqw #0007, 0 0 0 0 #fde68a99}50%{box-shadow:0 .4cqw .8cqw #0007, 0 0 0 1.2cqw #fde68a00}}
+
+.story-text{font-size:1.85cqw;color:#3a2a14;line-height:1.4;font-weight:600;min-height:2em}
+
+.mcq{display:none;margin-top:4%;width:100%;flex-direction:column;gap:2.2%}
+.mcq.show{display:flex}
+.mcq-q{font-size:1.55cqw;color:#5c3f1c;font-weight:700;margin-bottom:1.5%;line-height:1.3}
+.mcq-opt{font-size:1.6cqw;padding:.38em 0;border-radius:.6cqw;background:linear-gradient(#fffaf0,#e8d4a3);
+ border:.12cqw solid #8a6230;color:#3a2a14;font-weight:700}
+.mcq-opt.correct{background:linear-gradient(#bfe8c0,#7fc98a)}
+.mcq-opt.wrong{background:linear-gradient(#f3bcbc,#d97777)}
+.mcq-opt:disabled{opacity:.6}
+
+.feedback{margin-top:4%;font-size:1.8cqw;font-weight:700;min-height:1.6em;display:none}
+.feedback.show{display:block}
+.feedback.good{color:#2a6b2f}
+.feedback.bad{color:#9a2f2f}
+
+.road{position:absolute;left:0;bottom:0;width:100%;height:100%;z-index:10;overflow:hidden}
+.wagon{position:absolute;bottom:13%;left:-22%;width:13%;transition:left 3s cubic-bezier(.3,.6,.25,1)}
+.wagon.roll{left:var(--stopx)}
+.wagon.unload-out{opacity:0;transform:scale(.82);transition:opacity .5s ease, transform .5s ease}
+.wagon svg{width:100%;display:block;overflow:visible}
+.wheel{transform-origin:center;animation:spin 0.7s linear infinite}
+.wagon:not(.roll) .wheel{animation-play-state:paused}
+.wagon.arrived .wheel{animation-play-state:paused}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.pillar-zone{position:absolute;z-index:20;left:53%;top:10%;width:34%;height:76%;display:none}
+.pillar-zone.show{display:block}
+.pillar-label{text-align:center;font-family:Cinzel,"Trajan Pro",Georgia,serif;font-weight:700;letter-spacing:.06em;
+ font-size:2cqw;color:#fff6c2;text-shadow:0 .2cqw .3cqw #000d;margin-bottom:2%}
+
+.pillar-graphic{position:relative;width:64%;margin:0 auto;aspect-ratio:2/3}
+.pillar-svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.pillar-silhouette{fill:#272016;stroke:#6b4a24;stroke-width:2}
+.pillar-deck{fill:#e14f7a;stroke:#7a2740;stroke-width:1.5}
+
+.grid{position:absolute;left:27.5%;top:30%;width:45%;height:66.6667%;
+ display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(5,1fr)}
+.cell{border:.07cqw solid #fde68a77}
+.cell.filled{background:linear-gradient(150deg,#a3a3a9,#6a6a70 75%);border-color:#44444a;
+ box-shadow:inset 0 .1cqw .15cqw #fff4, inset 0 -.08cqw .12cqw #0004}
+
+.tray{position:relative;width:100%;margin-top:4%;display:flex;flex-wrap:wrap;gap:3%;
+ justify-content:center;min-height:12%}
+.stone-card{width:15%;aspect-ratio:1.3/1;background:linear-gradient(150deg,#c7c7cd,#8d8d93 75%);
+ border:.1cqw solid #5a5a5f;box-shadow:0 .2cqw .3cqw #0006;cursor:grab;touch-action:none;
+ transition:opacity .4s ease, transform .4s ease}
+.stone-card.tray-hidden{opacity:0;transform:scale(.4);pointer-events:none}
+.stone-card.dragging{opacity:.65;z-index:999}
+.stone-card.placed{visibility:hidden}
+
+.sentence{position:absolute;left:50%;top:3%;transform:translateX(-50%) translateY(-1cqw);z-index:30;
+ background:linear-gradient(#fff6c2,#f2c14e 60%,#a8741a);-webkit-background-clip:text;background-clip:text;color:transparent;
+ font-family:Cinzel,"Trajan Pro",Georgia,serif;font-weight:700;letter-spacing:.08em;font-size:3cqw;
+ filter:drop-shadow(0 .25cqw .25cqw #000c);opacity:0;transition:opacity .6s ease, transform .6s ease;white-space:nowrap;pointer-events:none}
+.sentence.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.hint{position:absolute;left:1.5%;bottom:1%;font-size:1.1cqw;color:#fff9;text-shadow:0 .1cqw .2cqw #000;z-index:30}
+</style>
+</head>
+<body>
+
+<!-- ===== Title / main menu screen ===== -->
+<div class="screen active" id="titleScreen">
+  <div class="stage">
+    <h1 class="gametitle">Multiplication Quest<small>The Crystal Isles</small></h1>
+    <nav class="mainmenu" aria-label="Main menu">
+      <button class="menu" id="playBtn" style="top:22.40%" aria-label="Play"><span>Play</span></button>
+      <button class="menu" style="top:31.95%" aria-label="Settings"><span>Settings</span></button>
+      <button class="menu" style="top:41.50%" aria-label="Quit"><span>Quit</span></button>
+    </nav>
+  </div>
+</div>
+
+<!-- ===== Gameplay screen — Scene 1: the blocked path ===== -->
+<div class="screen" id="gameScreen">
+  <div class="stage">
+    <img class="bg" id="bgImg" src="1.jpg" alt="scene background">
+
+    <div class="sentence" id="sentence"></div>
+
+    <div class="road" id="road"></div>
+
+    <div class="pillar-zone" id="pillarZone">
+      <div class="pillar-label">Build the first bridge pillar — 3 blocks wide</div>
+      <div class="pillar-graphic">
+        <svg class="pillar-svg" viewBox="0 0 200 300" preserveAspectRatio="none">
+          <path class="pillar-silhouette" d="M10,0 L190,0 L190,22 C185,70 150,60 145,90 L145,290 L55,290 L55,90 C50,60 15,70 10,22 Z"/>
+          <path class="pillar-deck" d="M10,0 L190,0 L190,22 L10,22 Z"/>
+        </svg>
+        <div class="grid" id="grid"></div>
+      </div>
+      <div class="tray" id="tray"></div>
+    </div>
+
+    <div class="scroll-wrap" id="scrollWrap">
+      <div class="scroll-bg">
+        <button class="speaker-btn idle" id="speakerBtn" aria-label="Replay narration">&#128266;</button>
+        <div class="story-text" id="storyText">Oh no! The path to the village is blocked. We must construct a bridge over the river!</div>
+
+        <div class="mcq" id="bridgeQ"></div>
+        <div class="mcq" id="mcqRows"></div>
+        <div class="mcq" id="mcqTotal"></div>
+
+        <div class="feedback" id="feedback"></div>
+      </div>
+    </div>
+
+    <div class="hint" id="hint"></div>
+  </div>
+</div>
+
+<script>
+/* ---------- Screen switching ---------- */
+const titleScreen = document.getElementById('titleScreen');
+const gameScreen = document.getElementById('gameScreen');
+const playBtn = document.getElementById('playBtn');
+
+const bgImg = document.getElementById('bgImg');
+const scrollWrap = document.getElementById('scrollWrap');
+const speakerBtn = document.getElementById('speakerBtn');
+const storyText = document.getElementById('storyText');
+const feedback = document.getElementById('feedback');
+const road = document.getElementById('road');
+const pillarZone = document.getElementById('pillarZone');
+const grid = document.getElementById('grid');
+const tray = document.getElementById('tray');
+const sentence = document.getElementById('sentence');
+const hint = document.getElementById('hint');
+const bridgeQ = document.getElementById('bridgeQ');
+const mcqRows = document.getElementById('mcqRows');
+const mcqTotal = document.getElementById('mcqTotal');
+
+const NUM_WAGONS = 3;
+const STONES_PER_WAGON = 5;
+const TOTAL_STONES = NUM_WAGONS * STONES_PER_WAGON; // 15
+const ROWS = TOTAL_STONES / 3; // 5
+const stopPositions = ['34%','47%','60%'];
+
+let lastSpokenText = '';
+
+function speak(text, onend){
+  lastSpokenText = text;
+  try{
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 0.95;
+    if(onend){ u.onend = onend; u.onerror = onend; }
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+  }catch(e){ if(onend) onend(); }
+}
+
+speakerBtn.addEventListener('click', ()=>{ if(lastSpokenText) speak(lastSpokenText); });
+
+function wagonSVG(){
+  let cargo = '';
+  for(let i=0;i<STONES_PER_WAGON;i++){
+    const row = Math.floor(i/3), col = i%3;
+    const x = 28 + col*18, y = 48 - row*14;
+    cargo += `<rect x="${x-8}" y="${y-6}" width="16" height="12" rx="1.5" fill="#8d8d93" stroke="#5a5a5f" stroke-width="1.5"/>`;
+  }
+  return `
+  <svg viewBox="0 0 120 70">
+    <g class="wheel" style="transform-origin:28px 58px">
+      <circle cx="28" cy="58" r="9" fill="#4a2f16" stroke="#2c1b0c" stroke-width="2"/>
+      <circle cx="28" cy="58" r="2.4" fill="#2c1b0c"/>
+    </g>
+    <g class="wheel" style="transform-origin:86px 58px">
+      <circle cx="86" cy="58" r="9" fill="#4a2f16" stroke="#2c1b0c" stroke-width="2"/>
+      <circle cx="86" cy="58" r="2.4" fill="#2c1b0c"/>
+    </g>
+    <path d="M10 56 L14 30 L104 30 L110 56 Z" fill="#8a5a2c" stroke="#4a2f16" stroke-width="2"/>
+    <rect x="12" y="24" width="98" height="8" fill="#a8743c" stroke="#4a2f16" stroke-width="2" rx="2"/>
+    <line x1="4" y1="24" x2="12" y2="40" stroke="#4a2f16" stroke-width="3"/>
+    ${cargo}
+  </svg>`;
+}
+
+let stoneCards = [];
+let cells = [];
+let scene1Built = false;
+
+function buildScene1Dom(){
+  if(scene1Built) return;
+  scene1Built = true;
+
+  for(let i=0;i<NUM_WAGONS;i++){
+    const w = document.createElement('div');
+    w.className = 'wagon';
+    w.style.setProperty('--stopx', stopPositions[i]);
+    w.dataset.index = i;
+    w.innerHTML = wagonSVG();
+    road.appendChild(w);
+  }
+
+  for(let i=0;i<TOTAL_STONES;i++){
+    const c = document.createElement('div');
+    c.className = 'cell';
+    c.dataset.index = i;
+    grid.appendChild(c);
+  }
+  cells = [...grid.querySelectorAll('.cell')];
+
+  for(let i=0;i<TOTAL_STONES;i++){
+    const s = document.createElement('div');
+    s.className = 'stone-card tray-hidden';
+    s.dataset.id = i;
+    tray.appendChild(s);
+  }
+  stoneCards = [...tray.querySelectorAll('.stone-card')];
+
+  setupDragging();
+}
+
+function resetScene1(){
+  road.innerHTML = '';
+  grid.innerHTML = '';
+  tray.innerHTML = '';
+  pillarZone.classList.remove('show');
+  bridgeQ.classList.remove('show'); bridgeQ.innerHTML = '';
+  mcqRows.classList.remove('show'); mcqRows.innerHTML = '';
+  mcqTotal.classList.remove('show'); mcqTotal.innerHTML = '';
+  feedback.classList.remove('show','good','bad'); feedback.textContent = '';
+  sentence.classList.remove('show'); sentence.textContent = '';
+  scrollWrap.classList.remove('show');
+  bgImg.src = '1.jpg';
+  storyText.textContent = 'Oh no! The path to the village is blocked. We must construct a bridge over the river!';
+  speechSynthesis.cancel();
+  scene1Built = false;
+  placedCount = 0;
+}
+
+/* ---------- Dragging (rectangular stones, snap flush into grid) ---------- */
+let placedCount = 0;
+let dragEl = null, dragOffsetX = 0, dragOffsetY = 0, dragOriginParent = null, dragOriginNext = null;
+
+function setupDragging(){
+  stoneCards.forEach(card=>{
+    card.addEventListener('pointerdown', e=>{
+      if(card.classList.contains('placed')) return;
+      dragEl = card;
+      dragOriginParent = card.parentElement;
+      dragOriginNext = card.nextSibling;
+      const r = card.getBoundingClientRect();
+      dragOffsetX = e.clientX - r.left;
+      dragOffsetY = e.clientY - r.top;
+      // Move the card to <body> so position:fixed is relative to the real
+      // viewport, not the scaled/transformed .stage (this was why stones
+      // used to fly off to the side while dragging).
+      card.classList.add('dragging');
+      document.body.appendChild(card);
+      card.style.position = 'fixed';
+      card.style.width = r.width+'px';
+      card.style.height = r.height+'px';
+      card.style.left = r.left+'px';
+      card.style.top = r.top+'px';
+      card.setPointerCapture(e.pointerId);
+    });
+    card.addEventListener('pointermove', e=>{
+      if(dragEl !== card) return;
+      const vw = window.innerWidth, vh = window.innerHeight;
+      const w = card.offsetWidth, h = card.offsetHeight;
+      const nx = Math.min(Math.max(e.clientX - dragOffsetX, 0), vw - w);
+      const ny = Math.min(Math.max(e.clientY - dragOffsetY, 0), vh - h);
+      card.style.left = nx+'px';
+      card.style.top = ny+'px';
+    });
+    card.addEventListener('pointerup', e=>{
+      if(dragEl !== card) return;
+      dragEl = null;
+      card.classList.remove('dragging');
+      const cx = e.clientX, cy = e.clientY;
+      let target = null, bestDist = Infinity;
+      cells.forEach(cell=>{
+        if(cell.classList.contains('filled')) return;
+        const r = cell.getBoundingClientRect();
+        const dx = (r.left+r.width/2) - cx, dy = (r.top+r.height/2) - cy;
+        const d = dx*dx+dy*dy;
+        if(d < bestDist && d < (r.width*1.3)*(r.width*1.3)){ bestDist = d; target = cell; }
+      });
+      card.style.position = '';
+      card.style.width = '';
+      card.style.height = '';
+      card.style.left = '';
+      card.style.top = '';
+      if(target){
+        target.classList.add('filled');
+        card.remove(); // the real stone disappears — the grid cell itself is now "built"
+        placedCount++;
+        if(placedCount === TOTAL_STONES) setTimeout(askRowsQuestion, 600);
+      } else {
+        // not dropped on a valid cell — return it to exactly where it was
+        if(dragOriginNext) dragOriginParent.insertBefore(card, dragOriginNext);
+        else dragOriginParent.appendChild(card);
+      }
+    });
+  });
+}
+
+/* ---------- Narrative flow ---------- */
+const STEP = 1500; // standard pause between a beat's text and its audio, and between beats
+
+// Pause, show text, pause, speak it, pause, then move on.
+function beat(text, cb){
+  setTimeout(()=>{
+    storyText.textContent = text;
+    setTimeout(()=>{
+      speak(text, ()=>{
+        setTimeout(cb, STEP);
+      });
+    }, STEP);
+  }, STEP);
+}
+
+function startScene1(){
+  buildScene1Dom();
+  scrollWrap.classList.add('show');
+  storyText.textContent = '';
+  beat('Oh no! The path to the village is blocked. We must construct a bridge over the river!', showBridgeQuestion);
+}
+
+function showBridgeQuestion(){
+  setTimeout(()=>{
+    storyText.textContent = 'Will you help build a bridge?';
+    bridgeQ.innerHTML = '';
+    const yes = document.createElement('button');
+    yes.className = 'mcq-opt'; yes.textContent = 'Yes';
+    const no = document.createElement('button');
+    no.className = 'mcq-opt'; no.textContent = 'No';
+    bridgeQ.appendChild(yes); bridgeQ.appendChild(no);
+    bridgeQ.classList.add('show');
+
+    setTimeout(()=>{ speak('Will you help build a bridge?'); }, STEP);
+
+    yes.addEventListener('click', ()=>{
+      bridgeQ.classList.remove('show');
+      beat('Great! Here come the stone wagons!', startWagons);
+    });
+    no.addEventListener('click', ()=>{
+      bridgeQ.classList.remove('show');
+      speechSynthesis.cancel();
+      gameScreen.classList.remove('active');
+      titleScreen.classList.add('active');
+      resetScene1();
+    });
+  }, 0);
+}
+
+function startWagons(){
+  const wagons = [...road.querySelectorAll('.wagon')];
+  let idx = 0;
+  function sendNext(){
+    if(idx >= wagons.length){
+      setTimeout(()=>unloadWagons(wagons), STEP);
+      return;
+    }
+    const w = wagons[idx];
+    w.classList.add('roll');
+    setTimeout(()=>{
+      w.classList.add('arrived');
+      idx++;
+      sendNext();
+    }, 3000);
+  }
+  sendNext();
+}
+
+function unloadWagons(wagons){
+  storyText.textContent = "Let's unload the stone blocks, one wagon at a time.";
+  speak(storyText.textContent);
+  pillarZone.classList.add('show');
+  hint.textContent = 'Watch the wagons unload.';
+
+  let i = 0;
+  function unloadNext(){
+    if(i >= wagons.length){
+      storyText.textContent = 'The first bridge pillar must be 3 blocks wide. Drag the blocks into the frame to build it — they should sit flush, with no gaps.';
+      speak(storyText.textContent);
+      hint.textContent = 'Drag each stone into an empty slot.';
+      return;
+    }
+    const w = wagons[i];
+    const cardsForThisWagon = stoneCards.slice(i*STONES_PER_WAGON, i*STONES_PER_WAGON+STONES_PER_WAGON);
+    cardsForThisWagon.forEach((c, idx)=> setTimeout(()=>c.classList.remove('tray-hidden'), idx*150));
+    setTimeout(()=>{
+      w.classList.add('unload-out');
+      i++;
+      setTimeout(unloadNext, 1100);
+    }, 1100);
+  }
+  unloadNext();
+}
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+  return arr;
+}
+
+function buildMCQ(container, questionHTML, options, correctIdx, onCorrect){
+  container.innerHTML = '';
+  const q = document.createElement('div');
+  q.className = 'mcq-q';
+  q.innerHTML = questionHTML;
+  container.appendChild(q);
+  const order = shuffle(options.map((v,i)=>i));
+  order.forEach(origIdx=>{
+    const btn = document.createElement('button');
+    btn.className = 'mcq-opt';
+    btn.textContent = options[origIdx];
+    btn.addEventListener('click', ()=>{
+      container.querySelectorAll('.mcq-opt').forEach(b=>b.disabled = true);
+      if(origIdx === correctIdx){
+        btn.classList.add('correct');
+        feedback.classList.remove('bad'); feedback.classList.add('show','good');
+        feedback.textContent = 'Great job!';
+        speak('Great job!');
+        setTimeout(onCorrect, 2400);
+      } else {
+        btn.classList.add('wrong');
+        feedback.classList.remove('good'); feedback.classList.add('show','bad');
+        feedback.textContent = "Let's look again and try another answer.";
+        speak("Let's look again.");
+        container.querySelectorAll('.mcq-opt').forEach(b=>{ if(!b.classList.contains('wrong')) b.disabled = false; });
+      }
+    });
+    container.appendChild(btn);
+  });
+  container.classList.add('show');
+}
+
+function askRowsQuestion(){
+  storyText.textContent = "The pillar is built! Now let's see what you've made.";
+  speak("The pillar is built. Now let's see what you've made. The pillar has 3 columns of stone blocks. How many rows are there?");
+  let options = [...new Set([ROWS, ROWS+1, ROWS-1, ROWS+2])];
+  while(options.length<4) options.push(ROWS + options.length + 2);
+  buildMCQ(mcqRows, `The pillar has 3 columns of stone blocks.<br>How many rows are there?`, options, options.indexOf(ROWS), askTotalQuestion);
+}
+
+function askTotalQuestion(){
+  mcqRows.classList.remove('show');
+  feedback.classList.remove('show');
+  storyText.textContent = `That's right — ${ROWS} rows of 3 columns.`;
+  const qText = `That's ${ROWS} rows of 3 columns — ${ROWS} &times; 3. How many stone blocks is that in total?`;
+  speak(`That's ${ROWS} rows of 3 columns. ${ROWS} times 3. How many stone blocks is that in total?`);
+  const options = [...new Set([TOTAL_STONES, TOTAL_STONES+2, TOTAL_STONES-2, TOTAL_STONES+5])];
+  buildMCQ(mcqTotal, qText, options, options.indexOf(TOTAL_STONES), onPillarComplete);
+}
+
+function onPillarComplete(){
+  mcqTotal.classList.remove('show');
+  feedback.classList.remove('show');
+  sentence.textContent = `${ROWS} \u00d7 3 = ${TOTAL_STONES}`;
+  sentence.classList.add('show');
+  storyText.textContent = `Excellent! You've successfully built the first bridge pillar!`;
+  speak(`Excellent! You've successfully built the first bridge pillar! ${ROWS} times 3 equals ${TOTAL_STONES}.`);
+  hint.textContent = '';
+  setTimeout(()=>{
+    bgImg.src = '2.jpg';
+    pillarZone.classList.remove('show');
+  }, 3200);
+}
+
+playBtn.addEventListener('click', ()=>{
+  titleScreen.classList.remove('active');
+  gameScreen.classList.add('active');
+  startScene1();
+});
+</script>
+</body>
+</html>
