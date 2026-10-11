@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Math Tutor</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#fdf8ee;--card:#fff;--ink:#2b2a33;--mut:#6b6a75;--pri:#5b5bd6;--ok:#2e9e5b;--bad:#d9534f;--line:#e6e0cf}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1b22;--card:#2a2933;--ink:#f2f0f7;--mut:#a9a7b5;--pri:#8f8fff;--ok:#4cc783;--bad:#ff7a76;--line:#3c3b48}}
+:root[data-theme="dark"]{--bg:#1c1b22;--card:#2a2933;--ink:#f2f0f7;--mut:#a9a7b5;--pri:#8f8fff;--ok:#4cc783;--bad:#ff7a76;--line:#3c3b48}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#app{max-width:560px;margin:0 auto;padding:16px}
+h1{font-size:28px;margin:8px 0}h2{font-size:26px;margin:8px 0 16px}h3{margin:16px 0 8px}
+.mut{color:var(--mut);font-size:15px}
+button{font:inherit;cursor:pointer;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:14px;min-height:56px}
+.lv{display:flex;flex-direction:column;align-items:flex-start;width:100%;margin:10px 0;text-align:left;gap:2px}
+.lv b{font-size:21px}.lv span{color:var(--mut);font-size:15px}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:600}
+.ghost{min-height:44px;padding:8px 12px;border-color:transparent;background:transparent;color:var(--pri)}
+.w{width:100%;margin-top:8px}
+.prog{height:8px;background:var(--line);border-radius:8px;margin:8px 0 14px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--pri);transition:width .3s}
+.card{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:18px}
+.vis{font-size:34px;letter-spacing:2px;word-break:break-all;margin:6px 0}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{font-size:24px;font-weight:600}
+.opt.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.opt.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+input{width:100%;font:inherit;font-size:26px;text-align:center;padding:12px;border:2px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink);margin-bottom:10px}
+.go{width:100%;background:var(--pri);border-color:var(--pri);color:#fff;font-weight:700;margin-top:12px}
+.good{color:var(--ok);font-weight:700;font-size:22px;margin-top:14px}
+.nope{color:var(--bad);font-weight:700;margin-top:14px}
+.hint{margin-top:6px;color:var(--mut)}
+.rv{padding:8px 0;border-top:1px solid var(--line);font-size:16px}
+.c{text-align:center}.c .rv{text-align:left}
+.zones{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pz{display:grid;gap:3px;margin:12px auto}.pc{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:clamp(14px,4.5vw,22px);font-weight:700;border-radius:8px;min-width:0}.pc.n{background:var(--card);border:2px solid var(--line)}.pc.o{color:var(--pri)}.pc.in{width:100%;border:2px solid var(--pri);background:var(--bg);color:var(--ink);text-align:center;padding:0;font-size:16px;margin:0}.pc.in.ok{border-color:var(--ok);background:rgba(46,158,91,.18)}.pc.in.bad{border-color:var(--bad);background:rgba(217,83,79,.18)}.eqrow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:14px 0}.side{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;min-width:38%}.term{min-height:56px;font-size:22px;font-weight:700;padding:8px 14px}.term.z{border:0;color:var(--mut)}.eqs{font-size:30px;font-weight:700}.tool{display:flex;gap:8px;align-items:center;justify-content:center;margin:10px 0}.tool select,.tool input{font:inherit;font-size:18px;padding:10px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);width:auto;margin:0;text-align:center}.tool input{width:80px}.term.sel{background:var(--pri);border-color:var(--pri);color:#fff}.term.dim{opacity:.4}.term{touch-action:none;user-select:none}.dg{position:fixed;z-index:99;pointer-events:none;background:var(--card);border:2px solid var(--pri);border-radius:14px;padding:10px 16px;font-size:22px;font-weight:700}.side{min-height:70px;align-items:center;border:2px dashed var(--line);border-radius:14px;padding:6px}.side.hl{border-color:var(--pri)}.go:disabled{opacity:.4}.zone{min-height:150px;border:2px dashed var(--line);border-radius:14px;padding:8px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:4px}#zb{border-color:var(--pri)}.zone:empty::before{content:attr(data-l);color:var(--mut);font-size:14px}.ob{font-size:32px;cursor:pointer;user-select:none;padding:2px}.pie{width:120px;height:120px;border-radius:50%;margin:8px auto}.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.chip{min-height:44px;padding:8px 14px;border-radius:22px}.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}.st{font-size:28px;margin-top:8px;word-break:break-all}.bars{display:flex;align-items:flex-end;gap:6px;height:150px}.bars>div{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;text-align:center}.b{background:var(--pri);color:#fff;border-radius:6px 6px 0 0;font-size:13px;min-height:18px}
+
+.scale{position:relative;height:215px;margin:10px 0}.eqt{position:absolute;left:50%;top:0;transform:translateX(-50%);line-height:40px;z-index:2}
+.beam{position:absolute;left:18%;width:64%;top:58px;height:8px;margin-top:-4px;border-radius:4px;background:var(--ink);transition:transform .6s;z-index:2}
+.tri{position:absolute;left:50%;top:58px;margin-left:-35px;width:70px;height:142px;z-index:0}
+.pan{position:absolute;top:58px;width:40%;z-index:1;transition:transform .6s}.pl{left:3%}.pr{right:3%}.str{display:block;width:100%;height:28px;color:var(--ink)}
+.pan .side{border:0;border-bottom:8px solid var(--ink);border-radius:0 0 14px 14px;min-height:60px;padding:2px 2px 0;justify-content:center;align-items:flex-end;gap:2px;flex-wrap:nowrap;background:transparent;min-width:0}
+.pan .side.hl{border-bottom-color:var(--pri);background:rgba(91,91,214,.15)}
+.pan .term{font-size:clamp(14px,4.2vw,20px);padding:4px 6px;min-height:44px;white-space:nowrap;min-width:0}
+.tks .term{font-size:20px;padding:6px 8px;min-height:48px;min-width:64px;white-space:nowrap}.tks.bz{opacity:.4}
+.bx{display:inline-block;width:1.1em;height:1.1em;border:2px solid currentColor;border-radius:5px;line-height:1.05em;text-align:center;font-size:.85em;vertical-align:middle}
+.term.cx{animation:cxp 2s forwards}@keyframes cxp{0%{transform:scale(1)}25%{transform:scale(1.2);background:var(--ok);color:#fff;border-color:var(--ok)}70%{transform:scale(1.1);background:var(--ok);color:#fff;opacity:1}100%{transform:scale(.3);opacity:0}}
+.vg{display:grid;justify-content:center;margin:12px auto;font-size:36px;font-weight:700;row-gap:4px}.vc{display:flex;align-items:center;justify-content:center;height:56px}.vb{border-bottom:3px solid var(--ink)}
+.slot{width:48px;height:52px;border:2px dashed var(--pri);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;background:var(--bg);cursor:pointer}.slot.sm{width:46px;height:46px;font-size:24px;border-color:var(--mut)}.slot.f{border-style:solid}.slot.hl{background:rgba(91,91,214,.3)}.slot.ok{border-color:var(--ok);background:rgba(46,158,91,.18)}.slot.bad{border-color:var(--bad);background:rgba(217,83,79,.18)}
+.pal{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0 4px}.dgt{font-size:28px;font-weight:700;min-height:56px;padding:0;touch-action:none;user-select:none}.dgt.sel{background:var(--pri);color:#fff;border-color:var(--pri)}
+.fq{display:flex;align-items:center;justify-content:center;gap:8px;margin:14px 0}.fr{display:flex;flex-direction:column;align-items:center;font-size:34px;font-weight:700}.fr i{display:block;width:100%;height:3px;background:var(--ink);margin:4px 0}.fs{display:flex;gap:4px}.fq .slot{width:38px;height:46px;font-size:24px}.op{font-size:30px}
+.vc{position:relative}.td{display:inline-block;min-width:44px;text-align:center;border-bottom:3px dotted var(--pri);cursor:pointer;touch-action:none;user-select:none}.xo{text-decoration:line-through;color:var(--mut)}.nv{color:var(--pri);font-size:30px}.ten{font-size:20px;color:var(--pri);vertical-align:super;margin-right:2px;transition:opacity .8s}.ten.used{opacity:0}
+.opts.many{grid-template-columns:repeat(4,1fr)}.opts.many .opt{padding:8px}.bpf{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}.bl{border:0;padding:4px;min-height:70px;border-radius:50% 50% 48% 48%;background:hsl(var(--h) 75% 60%);color:#fff;font-size:18px;font-weight:700;text-shadow:0 1px 2px #0006;animation:bob 2.4s ease-in-out infinite}@keyframes bob{50%{transform:translateY(-8px)}}.bl.pop{animation:pop .35s forwards;pointer-events:none}@keyframes pop{to{transform:scale(1.5);opacity:0}}.bl.shk{background:var(--bad);animation:none}.twr{display:flex;flex-direction:column-reverse;align-items:center;gap:3px;min-height:60px;margin:10px 0}.tb{width:140px;height:38px;border-radius:6px;background:hsl(var(--h) 65% 55%);color:#fff;font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer}
+</style></head>
+<body><div id="app"></div>
+<script>
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a,P=a=>a[R(0,a.length-1)];
+const sh=a=>a.map(x=>[Math.random(),x]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const NM=["Mia","Leo","Ava","Sam","Zoe","Max","Ella","Noah"];
+const IT=[["apple","apples","🍎"],["sticker","stickers","⭐"],["marble","marbles","🔵"],["cookie","cookies","🍪"],["book","books","📚"]];
+const mc=(q,a,o,h,v,keep)=>{o=[...new Set(o.map(String))];return{t:'mc',q,a:String(a),o:keep?o:sh(o),h,v}};
+const num=(q,a,h,v)=>({t:'num',q,a:String(a),h,v});
+const tf=(e,t,h)=>({t:'mc',q:'True or false: '+e,a:t?'True':'False',o:['True','False'],h});
+const near=(a,n=3,lo=0)=>{const s=new Set([a]);let k=0;while(s.size<4&&k++<60){const d=R(1,n)*(R(0,1)?1:-1);if(a+d>=lo)s.add(a+d)}return[...s]};
+const G={
+K:[
+()=>{const n=R(1,10),e=P(IT)[2];return mc("How many do you see?",n,near(n,2,1),"Touch each one and count out loud.",e.repeat(n))},
+()=>{const a=R(0,5),b=R(1,5);return mc(`${a} + ${b} = ?`,a+b,near(a+b),`Start at ${a} and count up ${b} more.`)},
+()=>{const a=R(3,10),b=R(1,a);return mc(`${a} − ${b} = ?`,a-b,near(a-b),`Start at ${a} and count back ${b}.`)},
+()=>{const a=R(1,20);let b=R(1,20);while(b==a)b=R(1,20);return mc("Which number is bigger?",Math.max(a,b),[a,b],"The bigger number comes later when you count.")},
+()=>{const a=R(1,5),b=R(1,5),t=R(0,1);return tf(`${a} + ${b} = ${t?a+b:a+b+P([-1,1])}`,t,`${a} + ${b} = ${a+b}.`)},
+()=>{const n=P(NM),[s,p,e]=P(IT),a=R(1,5),b=R(1,4);return num(`${n} has ${a} ${a>1?p:s}. ${n} gets ${b} more. How many now?`,a+b,"Put the two groups together and count.",e.repeat(a)+" + "+e.repeat(b))},
+()=>{const n=P(NM),[s,p,e]=P(IT),a=R(4,10),b=R(1,a-1);return num(`${n} has ${a} ${p}. ${n} gives away ${b}. How many are left?`,a-b,"Take away the ones given away, then count what is left.",e.repeat(a))},
+()=>{const a=R(1,8),t=R(a+1,10);return num(`${a} + ? = ${t}`,t-a,`Count up from ${a} to ${t}.`)},
+()=>{const n=R(2,19);return mc(`What number comes after ${n}?`,n+1,near(n+1,2,0),"Count: what comes next?")},
+()=>{const n=R(2,19);return mc(`What number comes before ${n}?`,n-1,near(n-1,2,0),"Count backwards by one.")}
+],
+G2:[
+()=>{const a=R(11,60),b=R(11,39);return num(`${a} + ${b} = ?`,a+b,"Add the tens, then add the ones.")},
+()=>{const a=R(30,99),b=R(11,a-5);return num(`${a} − ${b} = ?`,a-b,"Subtract the tens, then the ones. Or count up from the small number.")},
+()=>{const n=R(100,999),i=R(0,2),pl=['hundreds','tens','ones'][i],d=+String(n)[i];return mc(`In ${n}, which digit is in the ${pl} place?`,d,sh([...Array(10).keys()]).filter(x=>x!=d).slice(0,3).concat(d),"Hundreds, tens, ones: read the digits left to right.")},
+()=>{const a=R(100,999),b=R(0,4)==0?a:R(100,999);return mc(`Which symbol fits? ${a} ___ ${b}`,a>b?'>':a<b?'<':'=',['<','>','='],"Compare the hundreds first, then tens, then ones.",null,true)},
+()=>{const n=R(1,60);return mc(`Is ${n} even or odd?`,n%2?'Odd':'Even',['Even','Odd'],"Even numbers end in 0, 2, 4, 6 or 8.",null,true)},
+()=>{const s=P([2,5,10]),x=s*R(0,6);return num(`Skip count: ${x}, ${x+s}, ${x+2*s}, ___`,x+3*s,`You are counting by ${s}s. Add ${s} each time.`)},
+()=>{const d=R(1,4),n=R(0,3),p=R(0,4);return num(`${d} dimes, ${n} nickels and ${p} pennies. How many cents?`,10*d+5*n+p,"A dime is 10¢, a nickel is 5¢, a penny is 1¢.")},
+()=>{const n=P(NM),[s,p,e]=P(IT),a=R(12,45),b=R(10,40);return num(`${n} has ${a} ${p}. A friend gives ${n} ${b} more. How many ${p} in all?`,a+b,"Adding: put the two amounts together.")},
+()=>{const n=P(NM),[s,p,e]=P(IT),a=R(40,95),b=R(10,35);return num(`${n} had ${a} ${p} and gave away ${b}. How many are left?`,a-b,"Subtracting: take away what was given.")},
+()=>{const a=R(10,50),t=a+R(5,40);return num(`${a} + ? = ${t}`,t-a,`Find the gap: ${t} − ${a}.`)},
+()=>{const a=R(20,70),b=R(10,25),t=R(0,1);return tf(`${a} + ${b} = ${t?a+b:a+b+P([-10,-1,1,10])}`,t,`${a} + ${b} = ${a+b}.`)},
+()=>{const n=R(2,9)*10+R(0,9);return num(`What is 10 more than ${n}?`,n+10,"Adding 10 only changes the tens digit.")}
+],
+G3:[
+()=>{const a=R(2,10),b=R(2,10);return num(`${a} × ${b} = ?`,a*b,`Think of ${a} groups of ${b}.`,a<=5&&b<=6?('🟦'.repeat(b)+'<br>').repeat(a):null)},
+()=>{const b=R(2,10),c=R(2,10);return num(`${b*c} ÷ ${b} = ?`,c,`How many groups of ${b} fit in ${b*c}?`)},
+()=>{const a=R(2,10),b=R(2,9);return num(`? × ${b} = ${a*b}`,a,`Try dividing: ${a*b} ÷ ${b}.`)},
+()=>{const a=R(100,600),b=R(100,350);return num(`${a} + ${b} = ?`,a+b,"Add ones, then tens, then hundreds. Carry when you need to.")},
+()=>{const a=R(300,900),b=R(100,a-50);return num(`${a} − ${b} = ?`,a-b,"Subtract ones, tens, then hundreds. Borrow if needed.")},
+()=>{const n=P([4,6,8]),k=R(1,n-1);return mc(`A pizza has ${n} equal slices. You eat ${k}. What fraction did you eat?`,`${k}/${n}`,[`${k}/${n}`,`${n}/${k}`,`${k}/${n+2}`,`${n-k}/${n}`],"The top number is the slices you ate. The bottom is the total slices.",pie(n,k))},
+()=>{const a=R(2,9);let b=R(2,9);while(b==a)b=R(2,9);return mc("Which fraction is bigger?",`1/${Math.min(a,b)}`,[`1/${a}`,`1/${b}`],"The fewer the slices, the bigger each slice.",null,true)},
+()=>{const n=R(11,99);return num(`Round ${n} to the nearest 10.`,Math.round(n/10)*10,"Look at the ones digit. 5 or more rounds up.")},
+()=>{const n=P(NM),p=P(IT)[1],a=R(2,9),b=R(2,9);return num(`${n} has ${a} bags with ${b} ${p} in each bag. How many ${p} in all?`,a*b,`${a} groups of ${b}: multiply.`)},
+()=>{const n=P(NM),p=P(IT)[1],a=R(2,8),b=R(2,9);return num(`${n} shares ${a*b} ${p} equally among ${a} friends. How many does each friend get?`,b,"Sharing equally: divide.")},
+()=>{const a=R(2,9),b=R(2,9),t=R(0,1);return tf(`${a} × ${b} = ${t?a*b:a*b+P([-b,-1,1,a])}`,t,`${a} × ${b} = ${a*b}.`)},
+()=>{const a=R(2,9),b=R(2,9),c=R(2,9);return num(`${a} × ${b} + ${c} = ?`,a*b+c,"Multiply first, then add.")}
+]};
+const NAMES={K:'Kindergarten',G1:'1st Grade',G2:'2nd Grade',G3:'3rd Grade'};
+const E=()=>P(IT)[2],rep=(e,n)=>e.repeat(n);
+const pie=(n,k)=>`<div class='pie' style='background:repeating-conic-gradient(transparent 0 ${360/n-2}deg,var(--card) 0 ${360/n}deg),conic-gradient(var(--pri) 0 ${k*360/n}deg,var(--line) 0)'></div>`;
+const mv=(e,t,q,h,n)=>({t:'move',q,a:String(t),h,e,n});
+function mvUI(q){return `<div class='zones'><div class='zone' id='za'>${Array.from({length:q.n},()=>`<span class='ob' onclick='mvb(this)'>${q.e}</span>`).join('')}</div><div class='zone' id='zb' data-l='Move here ➡️'></div></div><button class='go chk' onclick='ans(document.getElementById("zb").children.length)'>Check</button>`}
+function mvb(el){if(S.ans)return;document.getElementById(el.parentNode.id=='za'?'zb':'za').appendChild(el)}
+function speak(){try{const t=S.q.q.replace(/\+/g,' plus ').replace(/−/g,' minus ').replace(/×/g,' times ').replace(/÷/g,' divided by ').replace(/=/g,' equals ').replace(/(^| )\?( |$)/g,' what ').replace(/_+/g,' blank ');speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.85;speechSynthesis.speak(u)}catch(e){}}
+G.K=[G.K[0],G.K[3],G.K[5],G.K[6],G.K[8],G.K[9],
+()=>{const a=R(1,9);let b=R(1,9);while(b==a)b=R(1,9);const e=E(),w=R(0,1);return mc(w?'Which group has MORE?':'Which group has FEWER?',rep(e,w?Math.max(a,b):Math.min(a,b)),[rep(e,a),rep(e,b)],'Count each group. Match them up one by one.',null,true)},
+()=>{const n=R(2,10),e=E();return mc(`Which group shows the number ${n}?`,rep(e,n),near(n,2,1).map(x=>rep(e,x)),'Count each group out loud.')},
+()=>{const t=R(2,8),x=R(1,3),e=E();return mv(e,t,`Move ${t} ${e} to the basket.`,'Tap one at a time and count as you go.',t+x)},
+()=>{const a=R(1,5),b=R(1,5),e=E();return mc('How many in all?',a+b,near(a+b,2,1),'Count all the pictures together.',rep(e,a)+' ➕ '+rep(e,b))},
+()=>{const a=R(3,9),b=R(1,a-1),e=E();return mc('Some are crossed out. How many are left?',a-b,near(a-b,2,0),'Count the ones that are not crossed out.',rep(e,a-b)+rep('❌',b))},
+()=>{const k=R(1,4),e=E();return num('How many more to make 5?',5-k,'Count what you have, then count up to 5.',rep(e,k)+rep('⚪',5-k))}
+];
+G.G1=[
+()=>{const a=R(1,9),b=R(1,9),e=E();return mc(`${a} + ${b} = ?`,a+b,near(a+b),`Count up from ${a}.`,rep(e,a)+' ➕ '+rep(e,b))},
+()=>{const a=R(10,20),b=R(2,9);return mc(`${a} − ${b} = ?`,a-b,near(a-b),`Count back ${b} from ${a}.`)},
+()=>{const a=R(6,12),b=R(3,9);return mc(`${a} + ${b} = ?`,a+b,near(a+b),'Make a 10 first, then add the rest.')},
+()=>{const a=R(1,9),e=E();return num(`${a} + ? = 10`,10-a,`Count up from ${a} to 10.`,rep(e,a)+rep('⚪',10-a))},
+()=>{const a=R(1,9),e=E();return mv(e,10-a,`10 is ${a} + ${10-a}. Move ${10-a} ${e} to the other side.`,'Tap to move them. 10 splits into two parts.',10)},
+()=>{const s=P([2,5,10]),x=s*R(0,5);return num(`Count by ${s}s: ${x}, ${x+s}, ${x+2*s}, ___`,x+3*s,`Add ${s} each time.`)},
+()=>{const s=P([5,10]),m=s*R(1,9),o=[m];while(o.length<4){const x=R(1,95);if(x%s&&!o.includes(x))o.push(x)}return mc(`Which number do you say when counting by ${s}s?`,m,o,`Count by ${s}s: ${s}, ${2*s}, ${3*s}...`)},
+()=>{const t=R(1,9),o=R(0,9);return num(`${t} tens and ${o} ones = ?`,t*10+o,'Each ten is 10. Add the ones.','📦'.repeat(t)+' '+'🔹'.repeat(o)+"<div class='mut'>📦 = 10 &nbsp; 🔹 = 1</div>")},
+()=>{const a=R(10,99);let b=R(10,99);while(b==a)b=R(10,99);return mc(`Which symbol fits? ${a} ___ ${b}`,a>b?'>':'<',['<','>'],'Compare the tens first.',null,true)},
+()=>{const n=P(NM),[s,p,e]=P(IT),a=R(3,10),b=R(2,9);return num(`${n} has ${a} ${p}. ${n} gets ${b} more. How many in all?`,a+b,'Add the two groups.',rep(e,a)+' ➕ '+rep(e,b))},
+()=>{const a=R(1,9),b=R(1,9),t=R(0,1);return tf(`${a} + ${b} = ${t?a+b:a+b+P([-2,-1,1,2])}`,t,`${a} + ${b} = ${a+b}.`)},
+()=>{const a=R(1,9);return mc(`Which number makes 10? ${a} + ___`,10-a,near(10-a,3,0),`Count up from ${a} to 10.`)}
+];
+const DESC={K:'Pictures, counting, more or fewer, moving objects',G1:'Make 10, count by 2s/5s/10s, add & subtract to 20',G2:"Add & subtract to 100, place value, money",G3:"Times tables, division, fractions"};
+const app=document.getElementById('app');let S={};
+let DB={cur:'',kids:{},mute:0};try{DB=JSON.parse(localStorage.getItem('mt_db'))||DB}catch(e){}
+const sv=()=>{try{localStorage.setItem('mt_db',JSON.stringify(DB))}catch(e){}};
+const kid=()=>DB.kids[DB.cur]||{h:[],st:[]};
+const best=l=>Math.max(0,...kid().h.filter(x=>x.l==l).map(x=>x.s));
+const saveBest=(l,v)=>{try{if(v>best(l))localStorage.setItem('mt_'+l,v)}catch(e){}};
+function homeOld(){app.innerHTML=`<h1>🧮 Math Tutor</h1><p class="mut">Pick a level. Every round has 10 brand-new questions.</p>`+Object.keys(NAMES).map(l=>`<button class="lv" onclick="start('${l}')"><b>${NAMES[l]}</b><span>${DESC[l]}${best(l)?` · Best: ${best(l)}/10`:''}</span></button>`).join('')}
+function start(l){S={l,i:0,score:0,streak:0,seen:new Set(),miss:[],t:(kid().t||{})[l]||0,rec:[],up:0};next()}
+function next(){if(S.i>=15)return results();let q;for(let k=0;k<30;k++){q=P(pool())();if(!S.seen.has(q.q))break}S.seen.add(q.q);S.q=q;S.ans=false;S.tried=0;S.i++;show()}
+function show(){const q=S.q;app.innerHTML=`<div class="bar"><button class="ghost" onclick="home()">← Home</button><span id="sc">⭐ ${S.score}</span><span id="st">🔥 ${S.streak}</span></div><div class="prog"><i style="width:${(S.i-1)*100/15}%"></i></div><div class="card"><div class="mut">Question ${S.i} of 15</div>${q.v?`<div class="vis">${q.v}</div>`:''}<h2>${q.q}</h2>`+(q.t=='move'?mvUI(q):q.t=='ord'?ordUI(q):q.t=='bp'?bpUI(q):q.t=='tw'?twUI(q):q.t=='mc'?`<div class="opts${q.o.length>6?' many':''}">${q.o.map(o=>`<button class="opt" onclick="ans(this.textContent)">${esc(o)}</button>`).join('')}</div>`:`<input id="in" inputmode="numeric" autocomplete="off" placeholder="Type your answer"><button class="go" onclick="ans(document.getElementById('in').value)">Check</button>`)+`<div id="fb"></div></div>`;const i=document.getElementById('in');if(i){i.focus();i.onkeydown=e=>{if(e.key=='Enter')ans(i.value)}}}
+function ans(v){if(S.ans)return;v=String(v).trim();if(!v)return;const q=S.q,ok=v.replace(/\s/g,'')==q.a;if(!ok&&!S.tried){S.tried=1;S.streak=0;S.miss.push(q);snd(0);adapt(0);document.getElementById('sc').textContent='⭐ '+S.score;document.getElementById('st').textContent='🔥 0';document.querySelectorAll('.opt').forEach(b=>{if(b.textContent==v){b.disabled=true;b.classList.add('bad')}});const i=document.getElementById('in');if(i){i.value='';i.focus()}document.getElementById('fb').innerHTML='<div class="nope">Not quite. Try one more time! 💪</div><div class="hint">💡 '+q.h+'</div>';return}S.ans=true;
+if(ok){snd(1);if(!S.tried){S.score++;S.streak++;adapt(1)}}else snd(0);
+document.getElementById('sc').textContent='⭐ '+S.score;document.getElementById('st').textContent='🔥 '+S.streak;
+document.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(b.textContent==q.a)b.classList.add('ok');else if(b.textContent==v)b.classList.add('bad')});
+document.querySelectorAll('.chk').forEach(b=>b.style.display='none');const inp=document.getElementById('in');if(inp){inp.disabled=true;document.querySelector('.go').style.display='none'}
+document.getElementById('fb').innerHTML=`<div class="${ok?'good':'nope'}">${ok?P(["Great job! 🎉","Yes! 🌟","Nailed it! 💪","Correct! 👏"]):`Not quite. The answer is <b>${esc(q.a)}</b>.`}</div>${ok?'':`<div class="hint">💡 ${q.h}</div>`}${S.up?'<div class="good">⬆️ Level up! Harder questions coming.</div>':''}<button class="go" onclick="next()">${S.i>=15?'See results':'Next →'}</button>`}
+function resultsOld(){saveBest(S.l,S.score);const s=S.score;app.innerHTML=`<div class="card c"><h1>${s>=9?'🏆':s>=7?'🌟':s>=5?'👍':'💪'} ${s} / 10</h1><p>${NAMES[S.l]} · ${s>=9?"Amazing work!":s>=7?"Great job!":s>=5?"Good effort, keep going!":"Practice makes progress!"}</p>${S.miss.length?`<h3>Let's review</h3>`+S.miss.map(q=>`<div class="rv">${q.q}<br><b>Answer: ${esc(q.a)}</b></div>`).join(''):'<p>Perfect round! 🎉</p>'}<button class="go" onclick="start('${S.l}')">Play again</button><button class="ghost w" onclick="home()">Change level</button></div>`}
+let AC;function snd(k){try{if(DB.mute)return;AC=AC||new(window.AudioContext||window.webkitAudioContext)();const f=k===2?[523,659,784,1047]:k?[660,880]:[220,165],t=AC.currentTime;f.forEach((x,i)=>{const o=AC.createOscillator(),g=AC.createGain(),s=t+i*.12;o.type=k?'sine':'triangle';o.frequency.value=x;g.gain.setValueAtTime(.15,s);g.gain.exponentialRampToValueAtTime(.001,s+.2);o.connect(g);g.connect(AC.destination);o.start(s);o.stop(s+.22)})}catch(e){}}
+function home(){const ks=Object.keys(DB.kids),k=kid();app.innerHTML=`<h1>🧮 Math Tutor</h1>`+(ks.length?`<div class='chips'>${ks.map(n=>`<button class='chip${n==DB.cur?' on':''}' onclick='pick(${JSON.stringify(n)})'>${esc(n)}</button>`).join('')}<button class='chip' onclick='addKid()'>＋ Add</button></div>`+Object.keys(NAMES).map(l=>`<button class="lv" onclick="start('${l}')"><b>${NAMES[l]}</b><span>${DESC[l]}${best(l)?` · Best: ${best(l)}/15`:''} · Stage ${((kid().t||{})[l]||0)+1}/${TIERS[l].length}</span></button>`).join('')+`<button class="lv" onclick="pzMenu()"><b>🧩 Puzzles & Games</b><span>Math crosswords, balloon pop, tap in order, build the tower</span></button><button class="lv" onclick="eqStart()"><b>⚖️ Equation Balance</b><span>Keep the scale balanced to find the mystery ❓</span></button><button class="lv" onclick="vmMenu()"><b>📝 Vertical Math & 🍰 Fractions</b><span>Stack, carry, borrow, add fractions: drag the digits</span></button><div class='bar'><button class='ghost' onclick='prog()'>📈 Progress</button><button class='ghost' onclick='DB.mute=!DB.mute;sv();home()'>${DB.mute?'🔇 Sound off':'🔊 Sound on'}</button></div>`:`<p class='mut'>Who is playing? Type a name:</p><input id='nm' placeholder='Name'><button class='go' onclick='addKid()'>Start</button>`)}
+function pick(n){DB.cur=n;sv();home()}
+function addKid(){const el=document.getElementById('nm');if(!el){app.innerHTML=`<h1>New player</h1><input id='nm' placeholder='Name'><button class='go' onclick='addKid()'>Save</button>`;return}const n=el.value.trim().slice(0,12);if(!n)return;DB.kids[n]=DB.kids[n]||{h:[],st:[]};DB.cur=n;sv();home()}
+function results(){const s=S.score,win=s>=10,stk=P(['⭐','🦄','🚀','🐱','🐶','🌈','🦖','🍦','🎈','🐼','🦋','🏆']),K=DB.kids[DB.cur];K.h.push({l:S.l,s,d:new Date().toISOString().slice(0,10)});K.t=K.t||{};K.t[S.l]=S.t;sv();snd(win?2:1);app.innerHTML=`<div class='card c'><h1>${s>=14?'🏆':s>=10?'🌟':s>=7?'👍':'💪'} ${s} / 15</h1><p>${NAMES[S.l]} · ${s>=14?'Amazing work!':s>=10?'Great job!':s>=7?'Good effort, keep going!':'Practice makes progress!'}</p>${S.miss.length?`<h3>Let's review</h3>`+S.miss.map(q=>`<div class='rv'>${q.q}<br><b>Answer: ${esc(q.a)}</b></div>`).join(''):'<p>Perfect round! 🎉</p>'}<button class='go' onclick="S.gp?gameStart(S.l,S.gk):start(S.l)">Play again</button><button class='ghost w' onclick='home()'>Change level</button></div>`}
+function prog(){const h=kid().h,t=h.slice(-12),av=h.length?Math.round(h.reduce((a,x)=>a+x.s,0)/h.length/.15):0;app.innerHTML=`<div class='bar'><button class='ghost' onclick='home()'>← Home</button></div><div class='card'><h2>📈 ${esc(DB.cur)}'s progress</h2>`+(h.length?`<p>${h.length} rounds · average ${av}% correct</p><div class='bars'>${t.map(x=>`<div><div class='b' style='height:${x.s/15*100}%'>${x.s}</div><small>${x.l.replace('G','')}</small></div>`).join('')}</div><p class='mut'>Last ${t.length} rounds, score out of 15. K = Kindergarten, 1–3 = grade.</p>`:'<p>No rounds yet. Play one!</p>')+`<button class='ghost w' onclick='rst()'>🗑 Reset progress</button></div>`}
+const fm=(h,m)=>`${h}:${m<10?'0'+m:m}`,a2=(a,l)=>[50+l*Math.sin(a*Math.PI/180),50-l*Math.cos(a*Math.PI/180)];
+const clk=(h,m)=>{const ln=(a,l,w)=>{const[x,y]=a2(a,l);return `<line x1='50' y1='50' x2='${x}' y2='${y}' stroke='currentColor' stroke-width='${w}' stroke-linecap='round'/>`};let t='';for(let i=1;i<=12;i++){const[x,y]=a2(i*30,37);t+=`<text x='${x}' y='${y+3.5}' font-size='9' text-anchor='middle' fill='currentColor'>${i}</text>`}return `<svg width='140' height='140' viewBox='0 0 100 100' style='display:block;margin:6px auto'><circle cx='50' cy='50' r='46' fill='none' stroke='currentColor' stroke-width='3'/>${t}${ln((h%12)*30+m/2,24,4)}${ln(m*6,35,2.5)}</svg>`};
+const poly=n=>{let p='';for(let i=0;i<n;i++){const[x,y]=a2(i*360/n+(n==4?45:0),42);p+=x+','+y+' '}return `<svg width='110' height='110' viewBox='0 0 100 100' style='display:block;margin:6px auto'><polygon points='${p}' fill='var(--pri)' opacity='.8'/></svg>`};
+const hrs=h=>sh([...Array(12).keys()].map(x=>x+1)).filter(x=>x!=h).slice(0,3).concat(h),PN={3:'triangle',4:'square',5:'pentagon',6:'hexagon'},IE=()=>sh(IT.map(x=>x[2]));
+const pat=(u,h)=>{const r=R(1,u.length-1),n=u.length*2+r,s=Array.from({length:n},(_,i)=>u[i%u.length]);return mc('What comes next?',u[n%u.length],[...new Set(u),P(IT)[2]],h,s.join(' ')+' ❓')};
+G.K.push(
+()=>{const c=sh([['penny',1],['nickel',5],['dime',10]]).slice(0,2);return mc('Which coin is worth MORE?',c[0][1]>c[1][1]?c[0][0]:c[1][0],[c[0][0],c[1][0]],'A penny is 1¢, a nickel is 5¢, a dime is 10¢.',null,true)},
+()=>{const m=[['circle','🔴'],['square','🟥'],['triangle','🔺'],['star','⭐']],a=P(m);return mc(`Which one is a ${a[0]}?`,a[1],m.map(x=>x[1]),'Look at the corners and sides.')},
+()=>{const e=IE();return pat([e[0],e[1]],'The pattern repeats. What comes after the last one?')}
+);
+G.G1.push(
+()=>{const h=R(1,12);return mc('What time is it?',fm(h,0),hrs(h).map(x=>fm(x,0)),'The short hand points to the hour.',clk(h,0))},
+()=>{const h=R(1,12);return mc('What time is it?',fm(h,30),[fm(h,30),fm(h,0),fm(h%12+1,30),fm(h%12+1,0)],'Long hand on 6 means 30 minutes past.',clk(h,30))},
+()=>{const d=R(1,6);return num(`${d} dimes = how many cents?`,d*10,'Each dime is 10¢. Count by 10s.','🪙'.repeat(d))},
+()=>{const n=R(3,6);return mc('How many sides does this shape have?',n,near(n,2,3),'Count each straight side.',poly(n))},
+()=>{const e=IE();return pat(P([[e[0],e[0],e[1]],[e[0],e[1],e[2]],[e[0],e[1],e[1]]]),'Find the part that repeats.')}
+);
+G.G2.push(
+()=>{const h=R(1,12),m=5*R(0,11);return mc('What time is it?',fm(h,m),[fm(h,m),fm(h,(m+5*R(1,4))%60),fm(h%12+1,m),fm(h,(m+30)%60)],'Short hand is the hour. Long hand: each number counts 5 minutes.',clk(h,m))},
+()=>{const q=R(1,3),d=R(0,2),n=R(0,2);return num(`${q} quarters, ${d} dimes and ${n} nickels. How many cents?`,25*q+10*d+5*n,'Quarter 25¢, dime 10¢, nickel 5¢.')},
+()=>{const a=5*R(2,18);return num(`You have ${a}¢. How many more cents make $1 (100¢)?`,100-a,`Count up from ${a} to 100.`)},
+()=>{const n=R(3,6);return mc('What is this shape called?',PN[n],Object.values(PN),'3 sides triangle, 4 square, 5 pentagon, 6 hexagon.',poly(n))},
+()=>{const s=P([3,4,6,7,9]),x=R(1,20);return mc(`What is the rule? ${x}, ${x+s}, ${x+2*s}, ${x+3*s}`,'+'+s,['+'+s,'+'+(s+1),'+'+(s-1),'+'+(s+2)],'Subtract the first two numbers.')}
+);
+G.G3.push(
+()=>{const h=R(1,12),d=R(1,3),m=P([0,15,30,45]),a=(h+d-1)%12+1;return mc(`It is ${fm(h,m)}. What time will it be in ${d} hour${d>1?'s':''}?`,fm(a,m),[fm(a,m),fm(a%12+1,m),fm((a+10)%12+1,m),fm(a,(m+30)%60)],'Add the hours. The minutes stay the same.',clk(h,m))},
+()=>{const c=5*R(2,19);return num(`A toy costs ${c}¢. You pay 100¢. How much change do you get?`,100-c,'Change = what you pay − the price.')},
+()=>{const a=R(2,9),b=R(2,9);return num(`A rectangle is ${a} long and ${b} wide. What is the distance around it (perimeter)?`,2*(a+b),'Add all four sides: long + wide + long + wide.')},
+()=>{const x=R(1,5);return num(`What comes next? ${x}, ${x*2}, ${x*4}, ${x*8}, ___`,x*16,'Each number doubles (× 2).')}
+);
+G.K.push(
+()=>{const a=R(0,4),b=R(1,5-a),e=E();return mc(`${a} + ${b} = ?`,a+b,near(a+b,2,0),`Count up from ${a}.`,rep(e,a)+' ➕ '+rep(e,b))},
+()=>{const a=R(1,9),b=R(1,10-a);return mc(`${a} + ${b} = ?`,a+b,near(a+b),`Count up from ${a}.`)},
+()=>{const a=R(2,5),b=R(1,a);return mc(`${a} − ${b} = ?`,a-b,near(a-b,2,0),`Count back ${b} from ${a}.`)},
+()=>{const a=R(5,10),b=R(1,a);return mc(`${a} − ${b} = ?`,a-b,near(a-b),`Count back ${b} from ${a}.`)}
+);
+const TIERS={K:[[0,1,4,5,6,7,8,13,14],[9,11,15],[2,12,16],[3,10],[17,18]],G1:[[0,4,9,15,16],[3,5,6,10,11,12,14],[2,7,8,13],[1]],G2:[[2,3,4,5,11,15],[0,6,7,13],[9,10,12,14,16],[1,8]],G3:[[0,5,6,7,15],[3,8,10,14],[1,2,9,11,12],[4,13]]};
+const pool=()=>{if(S.gp)return[S.gp];const T=TIERS[S.l],t=S.t;return [...T[t],...(t?T[t-1]:[])].map(i=>G[S.l][i])};
+function adapt(ok){if(S.gp)return;const T=TIERS[S.l];S.up=0;S.rec.push(ok?1:0);const r=S.rec.slice(-5);if(r.length<5)return;const c=r.reduce((a,b)=>a+b);if(c>=4&&S.t<T.length-1){S.t++;S.rec=[];S.up=1}else if(c<=2&&S.t>0){S.t--;S.rec=[]}}
+G.K.push(
+()=>{const t=R(3,5),a=R(1,t-1),e=E();return num(`${a} and ? make ${t}`,t-a,`Count up from ${a} to ${t}.`,rep(e,a)+rep('⚪',t-a))},
+()=>{const c=P([['penny',1],['nickel',5],['dime',10]]);return mc(`How many cents is a ${c[0]} worth?`,c[1],[1,5,10,25],'A penny is 1¢, a nickel is 5¢, a dime is 10¢.')},
+()=>{const n=R(1,8);return mc(`What number is missing? ${n}, ___, ${n+2}`,n+1,near(n+1,2,0),'Count: what comes in between?')}
+);
+G.G1.push(
+()=>{const t=R(5,10),a=R(1,t-1),e=E();return num(`${a} and ? make ${t}`,t-a,`Count up from ${a} to ${t}.`,rep(e,a)+rep('⚪',t-a))},
+()=>{const a=R(1,9),b=R(1,10-a);return num(`${a} + ${b} = ?`,a+b,`Count up from ${a}.`)},
+()=>{const a=R(2,10),b=R(1,a);return num(`${a} − ${b} = ?`,a-b,`Count back ${b} from ${a}, or think ${b} + ? = ${a}.`)},
+()=>{const n=P([2,4]),k=R(1,n-1);return mc('What fraction is shaded?',`${k}/${n}`,['1/2','1/4','2/4','3/4'],'The bottom number counts equal parts. The top number counts shaded parts.',pie(n,k))},
+()=>{const n=P([2,4]);return mc(`How many ${n==2?'halves':'fourths'} make a whole?`,n,[1,2,3,4],`Cut a whole into ${n} equal parts.`,pie(n,n))}
+);
+G.G2.push(
+()=>{const a=R(2,9);return num(`${a} + ${a} = ?`,2*a,'Doubles: count the same number twice.')},
+()=>{const a=R(2,9);return num(`${a} + ${a+1} = ?`,2*a+1,`Near double: ${a} + ${a} = ${2*a}, then one more.`)},
+()=>{const a=R(7,9),b=R(3,9);return num(`${a} + ${b} = ?`,a+b,`Make a 10 first: ${a} + ${10-a} = 10, then add the rest.`)},
+()=>{const a=R(11,18),b=R(2,9);return num(`${a} − ${b} = ?`,a-b,`Think: ${b} + ? = ${a}.`)},
+()=>{const n=P([2,3,4,6,8]),k=R(1,n-1);return mc('The parts are equal. What fraction is shaded?',`${k}/${n}`,[`${k}/${n}`,`${n}/${k}`,`${k}/${n+1}`,`${n-k}/${n}`],'Bottom number: equal parts. Top number: shaded parts.',pie(n,k))},
+()=>{const n=P(NM),a=R(20,50),b=R(10,30),c=R(5,19);return num(`${n} had ${a} stickers, got ${b} more, then gave away ${c}. How many now?`,a+b-c,'Do it in two steps: add first, then subtract.')}
+);
+const mt=f=>()=>{const a=P(f),b=R(2,10);return num(`${a} × ${b} = ?`,a*b,`Think of ${a} groups of ${b}.`,a<=5&&b<=6?('🟦'.repeat(b)+'<br>').repeat(a):null)};
+G.G3.push(
+mt([2,5,10]),mt([3,4]),mt([6,7,8,9]),
+()=>{const n=P([2,3,4]),k=R(1,n-1);return num(`Write 1 ${k}/${n} as a fraction: ?/${n}`,n+k,`1 whole is ${n}/${n}. Add ${k}/${n}.`)},
+()=>{const b=P([2,5,10]),c=R(2,10);return num(`${b*c} ÷ ${b} = ?`,c,`How many groups of ${b} fit in ${b*c}?`)}
+);
+Object.assign(TIERS,{K:[[0,1,4,5,6,7,8,21,13,14],[9,11,15,19],[2,12,20,16],[3,10],[17,18]],G1:[[0,9,10,4,5,15,16],[18,17,3,11,7,8],[19,20,21,6,12,14,13],[2,1]],G2:[[17,18,19,5,4,11,2,3],[20,6,13,15],[0,7,9,10,21],[1,8,22,14,12,16]],G3:[[16,5,7,3,15],[17,8,10,6,13],[18,0,20,2,14],[1,9,11,19,4,12]]});
+const LS={
+K:[['Counting & comparing','Count each picture one at a time. The group with more pictures is bigger.','🍎🍎🍎 vs 🍎🍎'],['Adding','Adding means putting groups together. Count them all.','🍎🍎 ➕ 🍎🍎🍎 = 5'],['Adding to 10','Start at the bigger number and count up.','7 + 2: 7 → 8, 9'],['Taking away','Subtracting means taking some away. Count what is left.','🍎🍎🍎🍎❌ = 4 left'],['Subtracting with numbers','Start with the big number and count back.','5 − 2: 5 → 4, 3']],
+G1:[['Counting & adding to 10','Put groups together and count them all.','🍎🍎🍎 ➕ 🍎🍎 = 5'],['Number pairs & facts','Pairs that make 10 help with every addition: 1 + 9, 2 + 8, 3 + 7 …','6 + 4 = 10'],['Subtracting & fractions','Subtract by counting back. A half is 1 of 2 equal parts. A fourth is 1 of 4 equal parts.','1/2 and 1/4'],['Adding & subtracting to 20','Make a 10 first. For 8 + 5: 8 + 2 = 10, then 3 more.','8 + 5 = 13']],
+G2:[['Doubles & facts to 20','Doubles: 6 + 6 = 12. A near double is one more: 6 + 7 = 13.','6 + 7 = 13'],['Subtracting to 20','Think of the matching addition fact: 15 − 8 = ? because 8 + 7 = 15.','15 − 8 = 7'],['Adding to 100','Add the tens, then the ones. For 34 + 25: 30 + 20 = 50, 4 + 5 = 9, so 59.','34 + 25 = 59'],['Subtracting & word problems','Subtract the tens, then the ones. Solve word problems one step at a time.','58 − 23 = 35']],
+G3:[['Times tables: 2s, 5s, 10s','Multiplying means groups. 3 × 5 is 3 groups of 5: 5, 10, 15.','3 × 5 = 15'],['The 3s and 4s','Use doubling: 4 × 6 is double 2 × 6. Arrays have rows and columns.','4 × 3 = 12'],['The 6s to 9s','For the 9s, the digits add up to 9: 9 × 4 = 36 (3 + 6 = 9).','9 × 4 = 36'],['Division, fractions & big numbers','Division undoes multiplication: 24 ÷ 4 = 6 because 4 × 6 = 24. And 1 1/2 = 3/2.','24 ÷ 4 = 6']]};
+function intro(){const t=LS[S.l][S.t];app.innerHTML=`<div class="card c"><div class="mut">Stage ${S.t+1}</div><h1>${t[0]}</h1><p>${t[1]}</p><div class="vis">${t[2]}</div><button class="go" onclick="next()">Let's go!</button></div>`}
+const Z=id=>document.getElementById(id);
+const PZ={K:{n:'Kindergarten',d:'Adding to 10',ops:['+'],mx:10,fr:.4},G1:{n:'1st Grade',d:'Adding & subtracting to 20',ops:['+','−'],mx:20,fr:.45},G2:{n:'2nd Grade',d:'Adding & subtracting to 99',ops:['+','−'],mx:99,fr:.5},G3:{n:'3rd Grade',d:'All four operations',ops:['+','−','×','÷'],mx:100,fr:.5}};
+function sol(op,f,mx){if(op=='−'){const r=sol('+',[f[2],f[1],f[0]],mx);return r&&[r[2],r[1],r[0]]}if(op=='÷'){const r=sol('×',[f[2],f[1],f[0]],mx);return r&&[r[2],r[1],r[0]]}
+let[a,b,c]=f;if(op=='+'){if(c==null){a=a??R(1,mx-1);b=b??R(1,Math.max(1,mx-a));c=a+b}else if(a==null&&b==null){if(c<2)return null;a=R(1,c-1);b=c-a}else if(a==null)a=c-b;else if(b==null)b=c-a;if(a+b!=c)return null}
+else{if(c==null){a=a??R(2,10);b=b??R(2,10);c=a*b}else if(a==null&&b==null){const d=[2,3,4,5,6,7,8,9,10].filter(x=>c%x==0&&c/x>=2&&c/x<=10);if(!d.length)return null;a=P(d);b=c/a}else if(a==null)a=c/b;else if(b==null)b=c/a;if(a*b!=c)return null}
+return[a,b,c].every(x=>Number.isInteger(x)&&x>=1&&x<=mx)?[a,b,c]:null}
+function fin(g,eqs,N,cfg){const nums=[];let a=N,b=-1,c0=N,d=-1;g.forEach((row,r)=>row.forEach((x,c)=>{if(x){a=Math.min(a,r);b=Math.max(b,r);c0=Math.min(c0,c);d=Math.max(d,c);if(x.t=='n')nums.push([r,c])}}));
+const eqc=eqs.map(e=>[0,2,4].map(k=>[e.r+e.dir[0]*k,e.c+e.dir[1]*k])),hid=new Set();
+sh(nums).forEach(([r,c])=>{if(hid.size>=Math.ceil(nums.length*cfg.fr))return;const es=eqc.filter(q=>q.some(p=>p[0]==r&&p[1]==c));if(es.every(q=>!q.some(p=>hid.has(p[0]+','+p[1]))))hid.add(r+','+c)});
+return hid.size<2?null:{g,eqs,eqc,hid,a,b,c0,d}}
+function mkPz(N,cfg){const target=N==5?5:N==7?7:12;for(let T=target;T>=3;T--)for(let tr=0;tr<25;tr++){const g=Array.from({length:N},()=>Array(N).fill(null)),eqs=[];
+for(let at=0;at<300&&eqs.length<T;at++){const dir=R(0,1)?[0,1]:[1,0],r=R(0,N-1),c=R(0,N-1),er=r+4*dir[0],ec=c+4*dir[1];if(er>=N||ec>=N)continue;
+const br=r-dir[0],bc=c-dir[1],ar=er+dir[0],ac=ec+dir[1];if((br>=0&&bc>=0&&g[br][bc])||(ar<N&&ac<N&&g[ar][ac]))continue;
+let ok=1,fx=[null,null,null],cross=0;
+for(let k=0;k<5&&ok;k++){const y=r+dir[0]*k,x=c+dir[1]*k,cell=g[y][x];if(k%2==0){if(cell){if(cell.t!='n'){ok=0;break}fx[k/2]=cell.v;cross++}}else if(cell){ok=0;break}
+if(!cell){const sy=y+dir[1],sx=x+dir[0],ty=y-dir[1],tx=x-dir[0];if((sy<N&&sx<N&&g[sy][sx])||(ty>=0&&tx>=0&&g[ty][tx])){ok=0;break}}}
+if(!ok||(eqs.length&&!cross))continue;
+for(const op of sh(cfg.ops)){const s=sol(op,fx,cfg.mx);if(s){for(let k=0;k<5;k++){const y=r+dir[0]*k,x=c+dir[1]*k;g[y][x]=k%2?{t:'o',v:k==1?op:'='}:{t:'n',v:s[k/2]}}eqs.push({r,c,dir,op});break}}}
+if(eqs.length>=Math.min(T,3)){const p=fin(g,eqs,N,cfg);if(p)return p}}return null}
+let PS=null,PL='K',PZN=5;
+function pzShow(){const p=PS;if(!p){app.innerHTML=`<div class='card c'><p>Could not make a puzzle. Try again!</p><button class='go' onclick='pzStart(PL,PZN)'>Try again</button><button class='ghost w' onclick='pzMenu()'>← Puzzles</button></div>`;return}
+const cols=p.d-p.c0+1;let h='';for(let r=p.a;r<=p.b;r++)for(let c=p.c0;c<=p.d;c++){const x=p.g[r][c];h+=!x?'<div></div>':x.t=='o'?`<div class='pc o'>${x.v}</div>`:p.hid.has(r+','+c)?`<input class='pc in' id='p_${r}_${c}' inputmode='numeric' maxlength='3' autocomplete='off'>`:`<div class='pc n'>${x.v}</div>`}
+app.innerHTML=`<div class='bar'><button class='ghost' onclick='pzMenu()'>← Puzzles</button><span>🧩 Solved: ${kid().pz||0}</span></div><div class='card c'><div class='mut'>Fill in each blank so every equation is true. Equations go across and down.</div><div class='pz' style='grid-template-columns:repeat(${cols},minmax(0,1fr));max-width:${cols*56}px'>${h}</div><div id='fb'></div><button class='go' onclick='pzCheck()'>Check</button><button class='ghost w' onclick='pzStart(PL,PZN)'>New puzzle</button></div>`}
+function pzCheck(){const p=PS,v=(r,c)=>{if(p.hid.has(r+','+c)){const s=Z('p_'+r+'_'+c).value.trim();return s===''?null:+s}return p.g[r][c].v};let empty=0,allok=1;const bad=new Set();
+p.eqc.forEach((q,i)=>{const[a,b,c]=q.map(([r,c2])=>v(r,c2)),op=p.eqs[i].op;if(a==null||b==null||c==null){empty++;allok=0;return}const t=op=='+'?a+b==c:op=='−'?a-b==c:op=='×'?a*b==c:(b!=0&&a/b==c);if(!t){allok=0;q.forEach(([r,c2])=>bad.add(r+','+c2))}});
+p.hid.forEach(k=>{const el=Z('p_'+k.replace(',','_')),s=el.value.trim();el.classList.remove('ok','bad');if(s!=='')el.classList.add(bad.has(k)?'bad':'ok')});
+if(allok){const K=DB.kids[DB.cur];K.pz=(K.pz||0)+1;K.pzg=K.pzg||{};K.pzg[PL]=(K.pzg[PL]||0)+1;sv();snd(2);p.hid.forEach(k=>Z('p_'+k.replace(',','_')).disabled=true);Z('fb').innerHTML=`<div class='good'>Solved! 🎉</div><button class='go' onclick='pzStart(PL,PZN)'>Next puzzle</button>`}
+else Z('fb').innerHTML=empty?`<div class='hint'>Fill in every blank, then tap Check.</div>`:`<div class='nope'>Not quite. Look at the red boxes again. 💪</div>`}
+let EQ={},EID=1,DG=null;
+const mkT=(k,v)=>({id:EID++,k,v});
+const spl=(v,n)=>{for(let t=0;t<40;t++){const p=[];let s=0;for(let i=0;i<n-1;i++){let r=R(-5,6);if(!r)r=2;p.push(r);s+=r}const l=v-s;if(l&&Math.abs(l)<=12)return[...p,l]}return[v]};
+const UB=()=>EQ.box?'<span class="bx">?</span>':'x';
+const fv=(k,v)=>{const a=Math.abs(v),ng=v<0?'−':'';return k=='x'?ng+(a>1?a:'')+UB():ng+a};
+const tx=(t,first)=>(t.v<0||first?'':'+')+fv(t.k,t.v);
+const tkx=(k,v)=>(v<0?'':'+')+fv(k,v);
+const pv=t=>t.v<0?'('+fv(t.k,t.v)+')':fv(t.k,t.v);
+const ev=s=>s.reduce((a,t)=>a+(t.k=='x'?t.v*EQ.x:t.v),0);
+function eqGen(st){const x=R(1,9);let b=R(1,9),c=0;if(st>=1&&R(0,1))b=-b;if(st==4){c=R(1,3);b=R(-9,9);if(!b)b=R(1,9)}
+let d=x+b;if(d<1){b=Math.abs(b);d=x+b}
+let L=[['x',c+1],['n',b]],Rr=c?[['x',c],['n',d]]:[['n',d]];
+if(st==2||st==3){L=[['x',1],...spl(b,R(2,3)).map(v=>['n',v])];Rr=spl(d,2).map(v=>['n',v])}
+if(st>=1){L=sh(L);Rr=sh(Rr)}
+let A=L.map(([k,v])=>mkT(k,v)),B=Rr.map(([k,v])=>mkT(k,v));if(st>0&&R(0,9)<3)[A,B]=[B,A];return{L:A,R:B,x}}
+function eqStart(){const K=kid(),st=K.eq||0,q=eqGen(st);EQ={L:q.L,R:q.R,x:q.x,st,h:[],sel:[],tsel:null,done:0,ask:null,err:0,busy:0,cx:null,cm:'',gen:EID,box:st<3,po:null};eqShow()}
+function eqSide(a,key){return`<div class='side' data-side='${key}' onclick='eqSideTap("${key}")'>`+(a.length?a.map((t,i)=>`<button class='term${EQ.sel.includes(t.id)?' sel':''}${EQ.cx&&EQ.cx.includes(t.id)?' cx':''}' onclick='event.stopPropagation();eqToggle(${t.id})'>${tx(t,i==0)}</button>`).join(''):`<span class='term z'>0</span>`)+'</div>'}
+function eqTokens(){const L=EQ.L,Rr=EQ.R,one=s=>s.filter(t=>t.k=='n').length<=1&&s.filter(t=>t.k=='x').length<=1;if(!(one(L)&&one(Rr)))return null;const o=[];[...new Set([...L,...Rr].filter(t=>t.k=='n'&&t.v).map(t=>Math.abs(t.v)))].sort((a,b)=>a-b).forEach(a=>o.push(['n',a],['n',-a]));if(EQ.st>=4&&L.some(t=>t.k=='x')&&Rr.some(t=>t.k=='x'))o.push(['x',1],['x',-1]);return o}
+const STR="<svg class='str' viewBox='0 0 100 28' preserveAspectRatio='none'><path d='M50 0L6 28M50 0L94 28' stroke='currentColor' stroke-width='2' fill='none' vector-effect='non-scaling-stroke'/></svg>";
+function eqShow(m){const K=kid(),d=ev(EQ.L)-ev(EQ.R),t=Math.max(-12,Math.min(12,d*1.5)),W=Math.max(260,Math.min(app.clientWidth,560)-40),dy=W*.27*Math.sin(Math.abs(t)*Math.PI/180)*Math.sign(t),po=EQ.po||{t:0,dy:0};EQ.po={t,dy};
+const like=s=>['x','n'].some(k=>s.filter(u=>u.k==k).length>1),nc=!EQ.dropped&&d==0&&(like(EQ.L)||like(EQ.R));
+if(!EQ.tk&&!EQ.done){const q=eqTokens();if(q)EQ.tk=q}
+let p='';
+if(EQ.ask){const a=EQ.ask;p=`<div class='mut'>Add up <b>${a.t.map((t,i)=>tx(t,i==0)).join(' ')}</b>. What do you get?</div><div class='opts'>${a.o.map(v=>`<button class='opt' ${a.bad.includes(v)?'disabled':''} onclick='eqPick(${v})'>${fv(a.k,v)}</button>`).join('')}</div><button class='ghost' onclick='eqCancel()'>Cancel</button>`}
+else if(!EQ.done){p=(EQ.tk?`<div class='mut'>Drag a number onto a side of the scale. Or tap it, then tap a side.</div><div class='chips tks${EQ.busy?' bz':''}'>${EQ.tk.map(([k,v])=>`<button class='term tk${EQ.tsel&&EQ.tsel[0]==k&&EQ.tsel[1]==v?' sel':''}' data-k='${k}' data-v='${v}'>${tkx(k,v)}</button>`).join('')}</div>`:'')+(nc?`<div class='mut'>First simplify: tap two like terms on the same side, then press Combine.</div><button class='go' ${EQ.sel.length>1?'':'disabled'} onclick='eqComb()'>Combine selected (${EQ.sel.length})</button>`:'')+(EQ.h.length?`<button class='ghost' onclick='eqUndo()'>↩ Undo</button>`:'')}
+const hint=!EQ.done&&!EQ.busy&&!EQ.ask&&d?`<div class='hint'>⚖️ The ${d>0?'left':'right'} side is heavier. What can you do to the other side?</div>`:'';
+app.innerHTML=`<div class='bar'><button class='ghost' onclick='home()'>← Home</button><span>⚖️ ${K.eqn||0} solved</span><span>Stage ${EQ.st+1}/5</span></div><div class='card c'><div class='mut'>Get the ${EQ.box?'<span class="bx">?</span>':'x'} alone on one side. Whatever you do to one side, do to the other!</div><div class='scale'><div class='eqs eqt'>=</div><div class='beam' id='bm' style='transform:rotate(${-po.t}deg)'></div><svg class='tri' viewBox='0 0 70 142'><polygon points='35,2 3,140 67,140' fill='var(--line)' stroke='var(--ink)' stroke-width='3' stroke-linejoin='round'/></svg><div class='pan pl' id='pwL' style='transform:translateY(${po.dy}px)'>${STR}${eqSide(EQ.L,'L')}</div><div class='pan pr' id='pwR' style='transform:translateY(${-po.dy}px)'>${STR}${eqSide(EQ.R,'R')}</div></div>${p}${hint}<div id='fb'>${m||''}${EQ.cm?`<div class='good'>${EQ.cm}</div>`:''}</div></div>`;
+requestAnimationFrame(()=>requestAnimationFrame(()=>{const a=Z('pwL');if(!a)return;a.style.transform=`translateY(${dy}px)`;Z('pwR').style.transform=`translateY(${-dy}px)`;Z('bm').style.transform=`rotate(${-t}deg)`}))}
+function eqToggle(id){if(EQ.ask||EQ.done||EQ.busy)return;const key=EQ.L.some(t=>t.id==id)?'L':'R',t=EQ[key].find(u=>u.id==id),f=EQ.sel.length?EQ[EQ.selSide].find(u=>u.id==EQ.sel[0]):null;if(f&&(EQ.selSide!=key||f.k!=t.k))EQ.sel=[];EQ.selSide=key;EQ.sel=EQ.sel.includes(id)?EQ.sel.filter(i=>i!=id):[...EQ.sel,id];eqShow()}
+function eqSideTap(key){if(EQ.tsel&&!EQ.busy)eqAdd(EQ.tsel[0],EQ.tsel[1],key)}
+function eqAdd(k,v,key){if(EQ.busy||EQ.done||EQ.ask)return;const b4=ev(EQ.L)-ev(EQ.R);if(!EQ.dropped){EQ.dropped=1;EQ.d0=EQ.h.length}EQ.h.push(JSON.stringify([EQ.L,EQ.R]));EQ[key]=[...EQ[key],mkT(k,v)];EQ.tsel=null;EQ.sel=[];if(b4!=0&&ev(EQ.L)-ev(EQ.R)!=0)EQ.err++;eqFx()}
+function eqAnim(key,ids,res,msg,ms){const g=EQ.gen;EQ.busy=1;EQ.cx=ids;EQ.cm=msg;eqShow();setTimeout(()=>{if(EQ.gen!=g)return;EQ[key]=res?EQ[key].map(t=>t.id==ids[0]?mkT(res.k,res.v):t).filter(t=>!ids.slice(1).includes(t.id)):EQ[key].filter(t=>!ids.includes(t.id));EQ.cx=null;EQ.cm='';EQ.busy=0;eqFx()},ms)}
+function eqFx(){if(EQ.dropped&&ev(EQ.L)==ev(EQ.R)){
+for(const key of['L','R']){const s=EQ[key];for(let i=0;i<s.length;i++)for(let j=i+1;j<s.length;j++)if(s[i].k==s[j].k&&s[i].v&&s[i].v==-s[j].v)return eqAnim(key,[s[i].id,s[j].id],null,`${pv(s[i])} + ${pv(s[j])} = 0 ✨`,2000)}
+for(const key of['L','R'])for(const k of['x','n']){const g=EQ[key].filter(t=>t.k==k);if(g.length>1){const sm=g.reduce((a,t)=>a+t.v,0);return eqAnim(key,g.map(t=>t.id),sm?{k,v:sm}:null,`${g.map(pv).join(' + ')} = ${fv(k,sm)}`,1500)}}}
+eqCheck()}
+function eqComb(){if(EQ.sel.length<2||EQ.ask||EQ.busy)return;const key=EQ.selSide,ts=EQ[key].filter(t=>EQ.sel.includes(t.id)),s=ts.reduce((a,t)=>a+t.v,0),ab=ts.reduce((a,t)=>a+Math.abs(t.v),0),o=sh([...new Set([-s,s+1,s-1,s+2,s-2,ab,s*2,s+3].filter(v=>v!==s))]).slice(0,4);EQ.ask={k:ts[0].k,t:ts,s,o:sh([...o,s]),bad:[],key};eqShow()}
+function eqPick(v){const a=EQ.ask;if(v!==a.s){EQ.err++;a.bad.push(v);return eqShow(`<div class='nope'>Try again! 💪</div>`)}EQ.h.push(JSON.stringify([EQ.L,EQ.R]));const ids=a.t.map(t=>t.id);EQ[a.key]=a.s==0?EQ[a.key].filter(t=>!ids.includes(t.id)):EQ[a.key].map(t=>t.id==ids[0]?mkT(a.k,a.s):t).filter(t=>!ids.slice(1).includes(t.id));EQ.ask=null;EQ.sel=[];eqFx()}
+function eqUndo(){if(EQ.done||EQ.busy||!EQ.h.length)return;[EQ.L,EQ.R]=JSON.parse(EQ.h.pop());EQ.sel=[];EQ.ask=null;EQ.tsel=null;if(EQ.dropped&&EQ.h.length<=EQ.d0)EQ.dropped=0;eqShow()}
+function eqCancel(){EQ.ask=null;eqShow()}
+function eqCheck(){const l=EQ.L,r=EQ.R,ok=(a,b)=>a.length==1&&a[0].k=='x'&&a[0].v==1&&b.length==1&&b[0].k=='n';if(!((ok(l,r)||ok(r,l))&&ev(l)==ev(r)))return eqShow();EQ.done=1;const K=DB.kids[DB.cur];K.eqn=(K.eqn||0)+1;let up=0,lock=0;K.es=EQ.err?0:(K.es||0)+1;K.eq=K.eq||0;
+if(K.eq==2&&K.es>=10){K.eq=3;up=1;K.eg=0}else if(K.eq==3&&K.es>=20){K.eq=4;up=1;K.eg=0}
+else if(EQ.err<=1){K.eg=(K.eg||0)+1;K.eb=0;if(K.eg>=2){if(K.eq<2){K.eq++;K.eg=0;up=1}else if(K.eq<4)lock=1}}
+else if(EQ.err>=4){K.eb=(K.eb||0)+1;K.eg=0;if(K.eb>=2&&K.eq>0){K.eq--;K.eb=0}}
+sv();snd(2);
+eqShow(`<div class='good'>${EQ.box?`The mystery box is ${EQ.x}!`:`x = ${EQ.x}`} 🎉</div><div class='mut'>${EQ.err?EQ.err+' retr'+(EQ.err>1?'ies':'y'):'No mistakes!'}</div>${up?`<div class='good'>⬆️ Level up! ${K.eq==3?'Now we use x instead of the box!':'Harder equations coming.'}</div>`:''}${lock?`<div class='mut'>${K.eq==2?'x replaces the box':'x on both sides'} after ${K.eq==2?10:20} perfect equations in a row: ${K.es}/${K.eq==2?10:20}</div>`:''}<button class='go' onclick='eqStart()'>Next equation</button>`)}
+document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('.tk');if(!b||EQ.done||EQ.busy)return;DG={k:b.dataset.k,v:+b.dataset.v,x:e.clientX,y:e.clientY,m:0,g:null,txt:b.innerHTML}});
+document.addEventListener('pointermove',e=>{if(!DG)return;if(!DG.m&&Math.hypot(e.clientX-DG.x,e.clientY-DG.y)>8){DG.m=1;DG.g=document.createElement('div');DG.g.className='dg';DG.g.innerHTML=DG.txt;document.body.appendChild(DG.g)}if(DG.g){DG.g.style.left=(e.clientX-30)+'px';DG.g.style.top=(e.clientY-30)+'px';const t=document.elementFromPoint(e.clientX,e.clientY),sd=t&&t.closest('.side');document.querySelectorAll('.side').forEach(s=>s.classList.toggle('hl',s===sd))}});
+document.addEventListener('pointerup',e=>{if(!DG)return;const d=DG;DG=null;if(d.g)d.g.remove();if(!d.m){EQ.tsel=EQ.tsel&&EQ.tsel[0]==d.k&&EQ.tsel[1]==d.v?null:[d.k,d.v];EQ.sel=[];return eqShow()}const t=document.elementFromPoint(e.clientX,e.clientY),sd=t&&t.closest('.side');if(sd)eqAdd(d.k,d.v,sd.dataset.side);else eqShow()});
+document.addEventListener('pointercancel',()=>{if(DG){if(DG.g)DG.g.remove();DG=null}});
+let VM=null,DD=null;
+const gcd=(a,b)=>b?gcd(b,a%b):a,dg=(n,p)=>Math.floor(n/10**p)%10,STK=['⭐','🦄','🚀','🐱','🐶','🌈','🦖','🍦','🎈','🐼','🦋','🏆'];
+const V0={v1:0,v2:1,v3:2,f2:0,f3:0},MX={v1:3,v2:3,v3:3,f2:1,f3:2},VR={1:[10,99],2:[50,999],3:[100,999]};
+function vinfo(a,b,op){const cols=Math.max(String(a).length,String(b).length,String(op=='+'?a+b:a-b).length),bi=[],bo=[];let c=0,bad=0;
+for(let p=0;p<cols;p++){bi[p]=c;if(op=='+'){c=dg(a,p)+dg(b,p)+c>9?1:0}else{const nd=dg(a,p)-c<dg(b,p)?1:0;bo[p]=nd;if(c&&nd)bad=1;c=nd}}
+return{cols,r:op=='+'?a+b:a-b,bi,bo,bad,hasC:op=='+'&&bi.some(x=>x),hasB:op!='+'&&bo.some(x=>x)}}
+function genV(g,lv){const M=[['a0'],['a0','s0'],['a1','a0','s0'],['s1','a1','s1']][lv],[lo,mx]=VR[g];for(let i=0;i<600;i++){const m=P(M),op=m[0]=='a'?'+':'−';let a=R(lo,mx),b=R(g==1?1:10,mx);if(g==2&&R(0,1)){a=R(10,99);b=R(10,99)}
+if(op=='+'&&g==1&&a+b>99)continue;if(op=='−'&&a<=b)continue;const f=vinfo(a,b,op);if(f.bad)continue;if(!!(op=='+'?f.hasC:f.hasB)!=(m[1]=='1'))continue;return{a,b,op,f}}return{a:12,b:17,op:'+',f:vinfo(12,17,'+')}}
+function vexp(q){const f=q.f,e={c:{},a:{}},rs=String(f.r);for(let p=0;p<f.cols;p++){e.a[p]=p<rs.length?rs[rs.length-1-p]:'';if(p>=1)q.op=='+'&&(e.c[p]=f.bi[p]?'1':'')}return e}
+function genF(g,lv){for(let i=0;i<300;i++){let b=P([2,3,4,5,6,8]),d=b,op='+';if(g==3){d=P([2,3,4,5,6]);if(lv==0){b=P([2,3]);d=b*P([2,3]);if(R(0,1))[b,d]=[d,b]}else if(d==b)continue}
+if(lv>=(g==2?1:2)&&R(0,1))op='−';const a=R(1,b-1),c=R(1,d-1),L=b*d/gcd(b,d),n=a*L/b+(op=='+'?1:-1)*c*L/d;if(n<=0||(g==2&&n>L)||n>L*1.5||(n==L&&R(1,20)>1))continue;const k=gcd(n,L);return{a,b,c,d,op,en:n/k,ed:L/k}}return{a:1,b:2,c:1,d:3,op:'+',en:5,ed:6}}
+function vmMenu(){const K=kid(),L=k=>((K.vl||{})[k]??V0[k])+1;app.innerHTML=`<div class='bar'><button class='ghost' onclick='home()'>← Home</button></div><h1>📝 Vertical Math</h1><p class='mut'>Drag digits into the boxes. Carry and borrow too!</p>`+[1,2,3].map(g=>`<button class='lv' onclick='vStart("v",${g})'><b>${NAMES['G'+g]}</b><span>${['','Two-digit numbers','Two- and three-digit numbers','Three-digit numbers'][g]} · Level ${L('v'+g)}/4</span></button>`).join('')+`<h1>🍰 Fractions</h1><p class='mut'>Work it out on paper, then drag the digits into the answer.</p>`+[2,3].map(g=>`<button class='lv' onclick='vStart("f",${g})'><b>${NAMES['G'+g]}</b><span>${g==2?'Same bottom numbers':'Different bottom numbers'} · Level ${L('f'+g)}/${MX['f'+g]+1}</span></button>`).join('')}
+function vStart(kind,g){VM={kind,g,key:kind+g,solved:0};vNew()}
+function vNew(){const lv=(kid().vl||{})[VM.key]??V0[VM.key];VM.lv=lv;VM.q=VM.kind=='v'?genV(VM.g,lv):genF(VM.g,lv);if(VM.kind=='v')VM.q.e=vexp(VM.q);Object.assign(VM,{bw:{},t:{},mk:{},sel:null,tries:0,done:0,up:0});vShow()}
+const slotH=(r,p,c)=>{const k=r+p,v=VM.t[k]??'';return`<div class='slot ${c||''}${v!==''?' f':''} ${VM.mk[k]||''}' data-r='${r}' data-p='${p}' onclick='vTap(this)'>${v}</div>`};
+function vHTML(q){const n=q.f.cols,sub=q.op!='+',ds=(x,c)=>c<String(x).length?dg(x,c):'',row=fn=>{let h='';for(let c=n-1;c>=0;c--)h+=fn(c);return h},bw=VM.bw||{};
+const top=c=>{if(c>=String(q.a).length)return'';const d=dg(q.a,c);if(!sub)return d;const rc=bw[c+1],us=rc&&VM.t['a'+c]===q.e.a[c];return`${rc?`<span class='ten${us?' used':''}' data-c='${c}'>1</span>`:''}<span class='${c>=1&&d>0?'td':''}${bw[c]?' xo':''} ${VM.mk['b'+c]||''}' data-p='${c}'>${d}</span>`};
+return`<div class='vg' style='grid-template-columns:34px repeat(${n},54px)'><div></div>${row(c=>`<div class='vc'>${sub?(bw[c]?`<span class='nv'>${dg(q.a,c)-1}</span>`:''):c>=1?slotH('c',c,'sm'):''}</div>`)}<div></div>${row(c=>`<div class='vc'>${top(c)}</div>`)}<div class='vc vb'>${q.op}</div>${row(c=>`<div class='vc vb'>${ds(q.b,c)}</div>`)}<div></div>${row(c=>`<div class='vc'>${slotH('a',c)}</div>`)}</div>`}
+function fHTML(q){const fr=(n,d)=>`<div class='fr'><b>${n}</b><i></i><b>${d}</b></div>`,s2=r=>`<div class='fs'>${slotH(r,0)}${slotH(r,1)}</div>`;return`<div class='fq'>${fr(q.a,q.b)}<b class='op'>${q.op}</b>${fr(q.c,q.d)}<b class='op'>=</b><div class='fr'>${s2('n')}<i></i>${s2('d')}</div></div>`}
+function vShow(msg){const q=VM.q,v=VM.kind=='v',hint=v?(q.op=='+'?'Start with the ones on the right. If a column adds up to 10 or more, write the ones digit and carry the 1 to the small box above the next column.':'Start with the ones on the right. If the top digit is smaller, borrow 10: tap the underlined top digit next to it (or drag it up). It becomes 1 less and gives 1 ten to the small digit.'):(VM.g==3?'Make the bottom numbers the same first, then add or subtract the top numbers.':'The bottom numbers match, so only the top numbers change.');
+app.innerHTML=`<div class='bar'><button class='ghost' onclick='vmMenu()'>← Menu</button><span>⭐ ${VM.solved}</span><span>Level ${VM.lv+1}/${MX[VM.key]+1}</span></div><div class='card c'><div class='mut'>${v?'Drag digits into the boxes.'+(q.op=='−'?' To borrow 10, tap (or drag up) the underlined top digit.':''):'Solve it on paper, then drag digits into the answer.'}</div>${v?vHTML(q):fHTML(q)}`+(VM.done?'':`<div class='pal'>${[0,1,2,3,4,5,6,7,8,9].map(d=>`<button class='dgt${VM.sel==d?' sel':''}' data-d='${d}'>${d}</button>`).join('')}</div><button class='go' onclick='vCheck()'>Check</button>`)+`<div id='fb'>${msg||''}${VM.tries==1&&!VM.done?`<div class='nope'>Not quite. Look at the red boxes and try once more! 💪</div><div class='hint'>💡 ${hint}</div>`:''}</div></div>`}
+function vSet(r,p,d){if(VM.done)return;VM.t[r+p]=String(d);delete VM.mk[r+p];VM.sel=null;const e=document.querySelector(`.slot[data-r='${r}'][data-p='${p}']`);e.textContent=d;e.className=e.className.replace(/ ?\b(ok|bad)\b/g,'')+' f';document.querySelectorAll('.dgt.sel').forEach(b=>b.classList.remove('sel'));if(r=='a'&&VM.kind=='v'){const s=document.querySelector('.ten[data-c="'+p+'"]');if(s&&String(d)===VM.q.e.a[p])s.classList.add('used')}}
+function vTap(el){if(VM.done)return;const r=el.dataset.r,p=el.dataset.p;if(VM.sel!=null)return vSet(r,p,VM.sel);if(VM.t[r+p]!=null){delete VM.t[r+p];el.textContent='';el.classList.remove('f','ok','bad')}}
+function vLvl(good){const K=DB.kids[DB.cur],k=VM.key;K.vl=K.vl||{};K.vs=K.vs||{};let lv=K.vl[k]??V0[k],s=K.vs[k]||0;if(good){s=Math.max(s,0)+1;if(s>=4&&lv<MX[k]){lv++;s=0;VM.up=1}}else{s=Math.min(s,0)-1;if(s<=-2&&lv>0){lv--;s=0}}K.vl[k]=lv;K.vs[k]=s}
+function vCheck(){if(VM.done)return;const q=VM.q;let ok=1;VM.mk={};
+if(VM.kind=='v'){for(const r of['c','a'])for(const p in q.e[r]){const x=q.e[r][p],v=VM.t[r+p]??'',g=x===''?(v===''||v==='0'):v===x;if(!g)ok=0;if(v!==''||!g)VM.mk[r+p]=g?'ok':'bad'}if(q.op!='+')for(let p=1;p<q.f.cols;p++)if(!!VM.bw[p]!=!!q.f.bi[p]){ok=0;VM.mk['b'+p]='bad'}}
+else{const n=(VM.t.n0??'')+(VM.t.n1??''),d=(VM.t.d0??'')+(VM.t.d1??'');ok=n!==''&&d!==''&&+d>0&&+n*q.ed==q.en*+d;['n0','n1','d0','d1'].forEach(k=>{if(VM.t[k]!=null)VM.mk[k]=ok?'ok':'bad'})}
+const K=DB.kids[DB.cur];let m='';
+if(ok){VM.done=1;VM.solved++;K.vn=(K.vn||0)+1;vLvl(!VM.tries);sv();snd(2);m=`<div class='good'>${P(['Great job! 🎉','Yes! 🌟','Nailed it! 💪'])}</div>`}
+else if(!VM.tries){VM.tries=1;snd(0)}
+else{VM.done=1;VM.tries=2;vLvl(0);sv();snd(0);if(VM.kind=='v'){for(const r of['c','a'])for(const p in q.e[r])if(q.e[r][p]!=='')VM.t[r+p]=q.e[r][p];else delete VM.t[r+p];VM.bw={};if(q.op!='+')for(let p=1;p<q.f.cols;p++)if(q.f.bi[p])VM.bw[p]=1}else{const a=String(q.en),b=String(q.ed);VM.t={n0:a[0],n1:a[1],d0:b[0],d1:b[1]};Object.keys(VM.t).forEach(k=>VM.t[k]===undefined&&delete VM.t[k])}VM.mk={};m=`<div class='nope'>Not quite. Here is the answer.</div>`}
+if(VM.done)m+=(VM.up?`<div class='good'>⬆️ Level up! Harder problems coming.</div>`:'')+`<button class='go' onclick='vNew()'>Next →</button>`;vShow(m)}
+document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('.dgt');if(!b||!VM||VM.done)return;DD={d:b.dataset.d,x:e.clientX,y:e.clientY,m:0,g:null}});
+document.addEventListener('pointermove',e=>{if(!DD)return;if(!DD.m&&Math.hypot(e.clientX-DD.x,e.clientY-DD.y)>8){DD.m=1;DD.g=document.createElement('div');DD.g.className='dg';DD.g.textContent=DD.d;document.body.appendChild(DD.g)}if(DD.g){DD.g.style.left=(e.clientX-20)+'px';DD.g.style.top=(e.clientY-50)+'px';const t=document.elementFromPoint(e.clientX,e.clientY),s=nearSlot(e.clientX,e.clientY);document.querySelectorAll('.slot').forEach(x=>x.classList.toggle('hl',x===s))}});
+document.addEventListener('pointerup',e=>{if(!DD)return;const d=DD;DD=null;if(d.g)d.g.remove();document.querySelectorAll('.slot.hl').forEach(x=>x.classList.remove('hl'));if(!d.m){VM.sel=VM.sel==d.d?null:d.d;document.querySelectorAll('.dgt').forEach(b=>b.classList.toggle('sel',b.dataset.d==VM.sel));return}const t=document.elementFromPoint(e.clientX,e.clientY),s=nearSlot(e.clientX,e.clientY);if(s)vSet(s.dataset.r,s.dataset.p,d.d)});
+document.addEventListener('pointercancel',()=>{if(DD){if(DD.g)DD.g.remove();DD=null}});
+let TD=null;
+document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('.td');if(b&&VM&&VM.kind=='v'&&!VM.done)TD={p:+b.dataset.p,x:e.clientX,y:e.clientY}});
+document.addEventListener('pointerup',e=>{if(!TD)return;const d=TD;TD=null;if(Math.abs(e.clientX-d.x)<40&&e.clientY-d.y<=10){VM.bw[d.p]=VM.bw[d.p]?0:1;vShow()}});
+const GM={ord:{},bp:{},tw:{}},gm=(k,g,f)=>GM[k][g]=f;
+const add=(g,f,ts)=>{const i=G[g].push(f)-1;ts.forEach(t=>TIERS[g][t].push(i))},nm=(a,b)=>sh(Array.from({length:b-a+1},(_,i)=>i+a)),ns=s=>s.replace(/\s/g,'');
+const hands=n=>{const h=(c,x)=>{let s='';for(let i=0;i<5;i++){const u=i<c;s+=`<rect x='${x+2+i*9}' y='${u?8:32}' width='7' height='${u?34:8}' rx='3.5' fill='#f6c89f' stroke='#c98b5e' stroke-width='1.5'/>`}return s+`<rect x='${x}' y='38' width='46' height='28' rx='8' fill='#f6c89f' stroke='#c98b5e' stroke-width='1.5'/>`};return `<svg width='240' height='130' viewBox='0 0 130 70' style='display:block;margin:6px auto'>${h(Math.min(n,5),4)}${h(Math.max(n-5,0),76)}</svg>`};
+const fing=()=>{const n=R(0,10);return mc('How many fingers are up?',n,[...Array(11).keys()],'Count the raised fingers on both hands. Each hand has 5.',hands(n),true)};
+add('K',fing,[0]);add('G1',fing,[0]);
+const ordG=(lo,hi)=>()=>{const v=nm(lo,hi).slice(0,5),up=R(0,1);return{t:'ord',q:up?'Tap the numbers from smallest to biggest':'Tap the numbers from biggest to smallest',a:[...v].sort((x,y)=>up?x-y:y-x).join(','),h:up?'Find the smallest number first, then the next smallest.':'Find the biggest number first, then the next biggest.',o:v}};
+gm('ord','K',ordG(1,10));gm('ord','G1',ordG(0,20));gm('ord','G2',ordG(10,99));gm('ord','G3',ordG(100,999));
+function ordUI(q){S.o=[];return `<div class='opts'>${q.o.map(v=>`<button class='opt' onclick='ordTap(this,${v})'>${v}</button>`).join('')}</div>`}
+function ordTap(b,v){if(S.ans||b.disabled)return;const a=S.q.a.split(',');if(String(v)==a[S.o.length]){S.o.push(v);b.disabled=true;b.classList.add('ok');b.textContent=v+' ✓';if(S.o.length==a.length)ans(S.q.a)}else{ans('x');if(!S.ans){S.o=[];document.querySelectorAll('.opts .opt').forEach(x=>{x.disabled=false;x.classList.remove('ok');x.textContent=x.textContent.replace(' ✓','')})}}}
+const ex1=v=>{if(R(0,1)){const a=R(1,v-1);return `${a} + ${v-a}`}const k=R(1,9);return `${v+k} − ${k}`},bp=(q,g,b,h)=>({t:'bp',q,a:ns(g.sort().join(',')),h,o:sh([...g.map(x=>[x,1]),...b.map(x=>[x,0])])});
+const tw=g=>()=>{const B=[[1,2,3],[1,2,3,5],[5,10,15,20],[25,50,75,100]][g],k=R(2,g?4:3);let t=0;for(let i=0;i<k;i++)t+=P(B);return{t:'tw',q:`Build a tower exactly ${t} tall`,a:String(t),h:`Add blocks until the total is exactly ${t}. Tap a block in the tower to take it off.`,o:B}};
+['K','G1','G2','G3'].forEach((l,g)=>gm('tw',l,tw(g)));
+function twUI(q){S.tw=[];return `<div id='tw' class='twr'></div><div class='mut c' id='tt'>Total: 0</div><div class='chips'>${q.o.map(v=>`<button class='term' onclick='twAdd(${v})'>+ ${v}</button>`).join('')}</div><button class='go chk' onclick='ans(S.tw.reduce((a,b)=>a+b,0))'>Check</button>`}
+function twDraw(){Z('tw').innerHTML=S.tw.map((v,i)=>`<div class='tb' style='--h:${(v*47+i*23)%360}' onclick='twDel(${i})'>${v}</div>`).join('');Z('tt').textContent='Total: '+S.tw.reduce((a,b)=>a+b,0)}
+function twAdd(v){if(!S.ans){S.tw.push(v);twDraw()}}
+function twDel(i){if(!S.ans){S.tw.splice(i,1);twDraw()}}
+const CN={penny:[1,'#c8793c','#8a4f1f',21],nickel:[5,'#c9ccd1','#8d9299',23],dime:[10,'#d9dce1','#8d9299',19],quarter:[25,'#c9ccd1','#8d9299',26]};
+const coin=n=>{const[v,f,s,r]=CN[n];return `<svg width='48' height='48' viewBox='0 0 56 56' style='vertical-align:middle'><circle cx='28' cy='28' r='${r}' fill='${f}' stroke='${s}' stroke-width='3'/><text x='28' y='33' font-size='14' font-weight='700' text-anchor='middle' fill='#2b2a33'>${v}¢</text></svg>`};
+const legend=ns=>`<div class='mut' style='display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:6px'>${ns.map(n=>`<span style='text-align:center'>${coin(n)}<br>${n} = ${CN[n][0]}¢</span>`).join('')}</div>`;
+const pl=n=>n=='penny'?'pennies':n+'s';
+const cnt=(ns,lo,hi)=>()=>{const n=P(ns),k=R(lo,hi),v=CN[n][0];return num('How many cents is this?',k*v,`Each ${n} is ${v}¢. Count by ${v}s.`,legend([n])+coin(n).repeat(k))};
+const mk=(ns,lo,hi)=>()=>{const n=P(ns),k=R(lo,hi),v=CN[n][0];return num(`How many ${pl(n)} make ${k*v}¢?`,k,`Count by ${v}s until you reach ${k*v}.`,legend([n]))};
+const mix=()=>{const q=R(1,3),d=R(0,2),n=R(0,3);return num('How many cents is this?',25*q+10*d+5*n,'Add up the coins. Count the biggest coins first.',legend(['quarter','dime','nickel'])+coin('quarter').repeat(q)+coin('dime').repeat(d)+coin('nickel').repeat(n))};
+G.K[12]=()=>{const c=sh(['penny','nickel','dime']).slice(0,2),m=Math.max(CN[c[0]][0],CN[c[1]][0]);return mc('Which coin is worth MORE?',m+'¢',c.map(x=>CN[x][0]+'¢'),'Look at the number on each coin. The bigger number is worth more.',legend(c),true)};
+G.K[20]=cnt(['penny','dime'],2,8);
+G.G1[14]=cnt(['dime'],2,9);
+G.G2[13]=mix;
+add('G1',cnt(['nickel'],2,6),[2]);add('G1',mk(['dime'],2,9),[2]);
+add('G2',mk(['nickel','dime'],3,12),[2]);add('G2',mk(['quarter'],2,4),[3]);
+const GN={bp:['🎈 Balloon Pop','Pop the right balloons'],ord:['🔢 Tap in Order','Tap the shuffled numbers in order'],tw:['🧱 Build the Tower','Stack blocks to an exact height']};
+function gameStart(l,k){S={l,i:0,score:0,streak:0,seen:new Set(),miss:[],t:(kid().t||{})[l]||0,rec:[],up:0,gp:GM[k][l],gk:k};next()}
+const r2=(f,n)=>Array.from({length:n},f);
+gm('bp','K',()=>{const n=R(1,10),k=R(2,4);return bp(`Pop all the balloons with the number ${n}`,Array(k).fill(n),r2(()=>P([1,2,3,4,5,6,7,8,9,10].filter(x=>x!=n)),12-k),`Look for the number ${n}.`)});
+gm('bp','G1',()=>{const T=R(4,12),k=R(3,4);return bp(`Pop all the balloons that equal ${T}`,r2(()=>ex1(T),k),r2(()=>{let v;do v=R(2,14);while(v==T);return ex1(v)},12-k),`Work out each balloon. Pop the ones that equal ${T}.`)});
+gm('bp','G2',()=>{const r=P([['even numbers',x=>x%2==0],['odd numbers',x=>x%2==1],['multiples of 5',x=>x%5==0]]),s=nm(10,99);return bp(`Pop all the ${r[0]}`,s.filter(r[1]).slice(0,5),s.filter(x=>!r[1](x)).slice(0,7),r[0]=='multiples of 5'?'Multiples of 5 end in 0 or 5.':r[0]=='even numbers'?'Even numbers end in 0, 2, 4, 6 or 8.':'Odd numbers end in 1, 3, 5, 7 or 9.')});
+gm('bp','G3',()=>{const a=R(2,9),b=R(2,9),T=a*b,k=R(2,9),g=[`${a}×${b}`,`${T+k} − ${k}`,`${T*2}÷2`],bd=[];if(a!=b)g.push(`${b}×${a}`);while(bd.length<12-g.length){const x=R(2,9),y=R(2,9);if(x*y!=T&&!bd.includes(`${x}×${y}`))bd.push(`${x}×${y}`)}return bp(`Pop all the balloons that equal ${T}`,g,bd,`Work out each balloon. Pop the ones that equal ${T}.`)});
+function bpUI(q){S.bp=0;S.bg=q.o.filter(x=>x[1]).length;return `<div class='bpf'>${q.o.map((x,i)=>`<button class='bl' style='--h:${(i*53+R(0,30))%360};animation-delay:${(i%5)*.25}s' onclick='bpTap(this,${x[1]})'>${x[0]}</button>`).join('')}</div>`}
+function bpTap(b,g){if(S.ans||b.style.visibility=='hidden')return;if(g){b.style.visibility='hidden';try{navigator.vibrate&&navigator.vibrate(30)}catch(e){}popS();if(++S.bp==S.bg)ans(S.q.a)}else{b.classList.add('shk');try{navigator.vibrate&&navigator.vibrate([60,40,60])}catch(e){}ans('x');setTimeout(()=>b.classList.remove('shk'),400)}}
+function popS(){try{if(DB.mute)return;AC=AC||new(window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type='square';o.frequency.setValueAtTime(900,t);o.frequency.exponentialRampToValueAtTime(120,t+.06);g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.001,t+.07);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.08)}catch(e){}}
+function pzMenu(){const g=kid().pzg||{},SG={K:'K',G1:'1st',G2:'2nd',G3:'3rd'};app.innerHTML=`<div class='bar'><button class='ghost' onclick='home()'>← Home</button><span>Solved: ${kid().pz||0}</span></div><h1>🧩 Number Cross</h1><p class='mut'>Math crosswords: equations go across and down. A blank where two equations cross must work for both! The more you solve, the bigger and harder the grids get.</p>`+`<div class='chips'>${Object.keys(PZ).map(l=>`<button class='chip' onclick="pzStart('${l}')">${SG[l]}${g[l]?' · '+g[l]:''}</button>`).join('')}</div><div class='mut'>Pick a grade. The number shows puzzles solved.</div>`+`<h1>🎮 Games</h1>`+Object.keys(GN).map(k=>`<div style='margin:12px 0'><b>${GN[k][0]}</b> <span class='mut'>${GN[k][1]}</span><div class='chips'>${['K','G1','G2','G3'].map(l=>`<button class='chip' onclick="gameStart('${l}','${k}')">${SG[l]}</button>`).join('')}</div></div>`).join('')}
+function pzStart(l){PL=l;const n=((kid().pzg||{})[l])||0,mx=Math.min(10,5+Math.floor(n/2)),mn=Math.max(5,mx-2),N=R(mn,mx),cfg={...PZ[l],fr:Math.min(.75,PZ[l].fr+Math.min(.2,n*.02))};PZN=N;PS=null;for(let i=0;i<5&&!PS;i++)PS=mkPz(N,cfg);pzShow()}
+function nearSlot(x,y){let b=null,m=34;document.querySelectorAll('.slot').forEach(e=>{const r=e.getBoundingClientRect(),dx=Math.max(r.left-x,0,x-r.right),dy=Math.max(r.top-y,0,y-r.bottom),d=Math.hypot(dx,dy);if(d<m){m=d;b=e}});return b}
+function rst(){app.innerHTML=`<div class='card c'><h2>Reset ${esc(DB.cur)}'s progress?</h2><p>This clears all rounds, levels, puzzles and equations solved for ${esc(DB.cur)}. Other players are not changed.</p><button class='go' style='background:var(--bad);border-color:var(--bad)' onclick='rstGo()'>Yes, reset</button><button class='ghost w' onclick='prog()'>Cancel</button></div>`}
+function rstGo(){DB.kids[DB.cur]={h:[],st:[]};sv();home()}
+home();
+</script></body></html>

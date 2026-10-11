@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Word Tutor</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f3f8ff;--card:#fff;--ink:#27303f;--mut:#667085;--pri:#2f7be5;--ok:#2e9e5b;--bad:#d9534f;--line:#dbe4f0;--hi:#e8590c}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171b22;--card:#232832;--ink:#eef1f6;--mut:#a3adbd;--pri:#6ea8ff;--ok:#4cc783;--bad:#ff7a76;--line:#363d4a;--hi:#ff9a52}}
+:root[data-theme="dark"]{--bg:#171b22;--card:#232832;--ink:#eef1f6;--mut:#a3adbd;--pri:#6ea8ff;--ok:#4cc783;--bad:#ff7a76;--line:#363d4a;--hi:#ff9a52}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#app{max-width:560px;margin:0 auto;padding:16px}
+h1{font-size:28px;margin:8px 0}h2{font-size:24px;margin:8px 0 12px}
+.mut{color:var(--mut);font-size:15px}
+button{font:inherit;cursor:pointer;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:14px;min-height:56px}
+.lv{display:flex;flex-direction:column;align-items:flex-start;width:100%;margin:10px 0;text-align:left;gap:2px}
+.lv b{font-size:21px}.lv span{color:var(--mut);font-size:15px}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:600}
+.ghost{min-height:44px;padding:8px 12px;border-color:transparent;background:transparent;color:var(--pri)}
+.w{width:100%;margin-top:8px}
+.prog{height:8px;background:var(--line);border-radius:8px;margin:8px 0 14px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--pri);transition:width .3s}
+.card{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:18px;text-align:center}
+.vis{font-size:80px;line-height:1.1;margin:6px 0}
+.wd{font-size:46px;font-weight:700;letter-spacing:6px;margin:6px 0}.wd b{color:var(--hi)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.opt{font-size:26px;font-weight:600}
+.opt.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.opt.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+.go{width:100%;background:var(--pri);border-color:var(--pri);color:#fff;font-weight:700;margin-top:12px}
+.good{color:var(--ok);font-weight:700;font-size:22px;margin-top:14px}
+.nope{color:var(--bad);font-weight:700;margin-top:14px}
+.hint{margin-top:6px;color:var(--mut);font-size:16px}
+.chip{display:inline-block;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px 10px;margin:3px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.chip{min-height:44px;padding:8px 14px;border-radius:22px}.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}.st{font-size:28px;margin-top:8px;word-break:break-all}.bars{display:flex;align-items:flex-end;gap:6px;height:150px}.bars>div{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;text-align:center}.b{background:var(--pri);color:#fff;border-radius:6px 6px 0 0;font-size:13px;min-height:18px}.tiles{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}.tile{font-size:26px;font-weight:700;min-width:54px}.tile:disabled{opacity:.3}.kr{display:flex;justify-content:center;gap:4px;margin:5px 0}.kk{flex:1;min-width:0;max-width:46px;min-height:52px;padding:0;font-size:22px;font-weight:700;border-radius:10px}input{width:100%;font:inherit;font-size:24px;text-align:center;padding:12px;border:2px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink);margin-bottom:10px}
+</style></head>
+<body><div id="app"></div>
+<script>
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a,P=a=>a[R(0,a.length-1)];
+const sh=a=>a.map(x=>[Math.random(),x]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'),$=id=>document.getElementById(id);
+const F={at:'cat rat fat mat pat bat sat hat flat',an:'can fan man pan ban van tan ran',ap:'cap map nap tap lap',ig:'big dig pig wig fig',og:'dog log fog hog jog',ot:'hot pot dot cot lot',un:'bun fun run sun gun',ug:'bug hug mug rug jug',en:'hen pen ten men den',ed:'bed red fed led',art:'art cart part dart tart',ake:'cake lake make take bake',all:'ball call fall wall tall',ill:'hill fill pill will'};
+Object.keys(F).forEach(k=>F[k]=F[k].split(' '));
+const PIC={cat:'🐱',dog:'🐶',pig:'🐷',hen:'🐔',fox:'🦊',bat:'🦇',rat:'🐀',cow:'🐮',bee:'🐝',sun:'☀️',bus:'🚌',hat:'🎩',pan:'🍳',bed:'🛏️',pen:'🖊️',van:'🚐',bag:'👜',key:'🔑',box:'📦',web:'🕸️',ant:'🐜',owl:'🦉',bug:'🐛',car:'🚗',cap:'🧢',nut:'🥜',egg:'🥚',log:'🪵'};
+const PD={ship:'sh',shoe:'sh',chair:'ch',cheese:'ch',chick:'ch',thumb:'th',whale:'wh',frog:'fr',star:'st',tree:'tr',drum:'dr',snake:'sn',flag:'fl',plane:'pl',train:'tr',crab:'cr'};
+const PE={ship:'🚢',shoe:'👟',chair:'🪑',cheese:'🧀',chick:'🐥',thumb:'👍',whale:'🐋',frog:'🐸',star:'⭐',tree:'🌳',drum:'🥁',snake:'🐍',flag:'🚩',plane:'✈️',train:'🚂',crab:'🦀'};
+const VT={rain:['ai','🌧️'],train:['ai','🚂'],snail:['ai','🐌'],tree:['ee','🌳'],sheep:['ee','🐑'],boat:['oa','⛵'],goat:['oa','🐐'],coat:['oa','🧥'],leaf:['ea','🍃'],seal:['ea','🦭'],bean:['ea','🫘']};
+const RC={car:['ar','🚗'],star:['ar','⭐'],shark:['ar','🦈'],fork:['or','🍴'],corn:['or','🌽'],horse:['or','🐴'],bird:['ir','🐦'],turtle:['ur','🐢'],tiger:['er','🐯'],spider:['er','🕷️']};
+const SPW={1:'the and was said they have are you with this come some were there what where want'.split(' '),2:'because friend would could people about school again every great'.split(' '),3:'different favorite enough through beautiful together another important surprise country'.split(' ')};
+const SY=[['cat',1],['tiger',2],['pencil',2],['rabbit',2],['table',2],['banana',3],['elephant',3],['dinosaur',3],['umbrella',3],['computer',3],['butterfly',3],['watermelon',4],['alligator',4],['caterpillar',4]];
+const CP=[['sun','flower'],['rain','bow'],['cup','cake'],['foot','ball'],['butter','fly'],['snow','man'],['bed','room'],['star','fish'],['play','ground'],['pop','corn'],['air','plane'],['base','ball']];
+const PRE2=[['un','happy'],['un','kind'],['un','lock'],['re','read'],['re','play'],['re','fill']],SUF2=[['ful','help'],['ful','care'],['less','help'],['less','care'],['ful','thank'],['less','hope']];
+const PRE3=[['dis','like'],['dis','agree'],['mis','spell'],['mis','place'],['pre','view'],['pre','heat']],SUF3=[['ly','quick'],['ly','slow'],['ness','kind'],['ness','dark'],['ness','sad'],['ly','soft']];
+const CT=[['do not',"don't"],['is not',"isn't"],['I am',"I'm"],['we are',"we're"],['they are',"they're"],['it is',"it's"],['can not',"can't"],['will not',"won't"],['she is',"she's"],['let us',"let's"],['I will',"I'll"],['you are',"you're"]];
+const AB=[['Dr.','Doctor'],['Mr.','Mister'],['St.','Street'],['Ave.','Avenue'],['Mon.','Monday'],['Jan.','January'],['Dec.','December'],['Sat.','Saturday']];
+const HM=[['I can ___ the bird in the tree.','see','sea'],['We swim in the ___.','sea','see'],['I ___ the answer.','know','no'],['There is ___ more milk.','no','know'],['I write with my ___ hand.','right','write'],['I like to ___ stories.','write','right'],['Come over ___.','here','hear'],['I can ___ the music.','hear','here']];
+const ME=[['cap','cape'],['tap','tape'],['kit','kite'],['hop','hope'],['cub','cube'],['pin','pine'],['not','note'],['mad','made'],['bit','bite'],['rob','robe']];
+const W=Object.keys(PIC),W2=Object.keys(PE),AL='abcdefghijklmnopqrstuvwxyz'.split(''),V=['a','e','i','o','u'],C=AL.filter(x=>!V.includes(x));
+const lt=a=>sh(AL.filter(x=>x!=a)).slice(0,3).concat(a);
+const mc=(q,a,o,h,v)=>({t:'mc',q,a,o:sh([...new Set(o)]),h,v});
+const mis=w=>{const s=new Set();let k=0;while(s.size<3&&k++<40){const a=w.split(''),i=R(0,a.length-2),t=R(0,2);if(t==0)[a[i],a[i+1]]=[a[i+1],a[i]];else if(t==1)a.splice(i,1);else{const j=R(0,a.length-1);if(V.includes(a[j]))a[j]=P(V)}const x=a.join('');if(x!=w&&x.length>1)s.add(x)}return[...s]};
+const spell=g=>()=>{const w=P(SPW[g]);return mc('Which word is spelled right?',w,[w,...mis(w)],'Check each letter, one at a time.')};
+const pk=(L,M)=>()=>{const w=P(L);return mc('Which word matches the picture?',w,sh(L.filter(x=>x!=w)).slice(0,3).concat(w),`It starts with the letter ${w[0]}.`,M[w])};
+const bd=(L,M)=>()=>{const w=P(L);return{t:'build',q:'Tap the letters in order to spell the word.',a:w,h:`It starts with ${w[0]}.`,v:M[w],l:sh(w.split(''))}};
+const tm=(D,o)=>()=>{const w=P(Object.keys(D)),[t,e]=D[w];return mc('Which letters finish the word?',t,sh(o.filter(x=>x!=t)).slice(0,3).concat(t),`Say it slowly: ${w}.`,e+`<div class='wd'>${w.replace(t,'__')}</div>`)};
+const syl=f=>()=>{const[w,n]=P(SY.filter(f));return mc(`How many syllables (beats) in "${w}"?`,String(n),['1','2','3','4'],'Clap each beat as you say the word.')};
+const afx=(pre,suf)=>()=>{const p=R(0,1),[a,w]=P(p?pre:suf);return mc(`Add ${p?a+'-':'-'+a} to "${w}". New word?`,p?a+w:w+a,p?[a+w,w+a,w,'in'+w]:[w+a,a+w,w,w+'ing'],p?'A prefix goes at the start of a word.':'A suffix goes at the end of a word.')};
+const bi=(w,s)=>s=='r'?[P([1,1,1,0,2])]:Array.isArray(s)?s:Array.from({length:s.length},(_,i)=>w.indexOf(s)+i);
+const tp=L=>()=>{const[w,e,s]=P(L);return{t:'type',q:'Type the missing letters.',a:w,b:bi(w,s),v:e,h:'Look at the picture and say the word slowly.'}};
+const TK=Object.keys(PIC).map(w=>[w,PIC[w],'r']);
+const TG=[...Object.keys(PE).map(w=>[w,PE[w],PD[w]]),['cake','🎂',[1,3]],['kite','🪁',[1,3]],['bike','🚲',[1,3]],['rose','🌹',[1,3]]];
+const TV=[...Object.keys(VT).map(w=>[w,VT[w][1],VT[w][0]]),...Object.keys(RC).map(w=>[w,RC[w][1],RC[w][0]]),['shirt','👕','ir'],['girl','👧','ir'],['bear','🐻','ea'],['pear','🍐','ea'],['bread','🍞','ea'],['moon','🌙','oo'],['book','📖','oo'],['cloud','☁️','ou'],['clown','🤡','ow']];
+const GN={
+miss:()=>{const w=P(W),i=P([1,1,1,0,2]),L=w[i];return mc('What letter is missing?',L,(V.includes(L)?sh(V).filter(x=>x!=L).slice(0,3):sh(C).filter(x=>x!=L).slice(0,3)).concat(L),`Say the word slowly: ${w}.`,PIC[w]+`<div class='wd'>${w.split('').map((c,j)=>j==i?'_':c).join(' ')}</div>`)},
+typ0:tp(TK),typ1:tp(TG),typ2:tp(TV),pick:pk(W,PIC),pick1:pk(W2,PE),build:bd(W,PIC),build1:bd(W2,PE),
+rhyme:()=>{const ks=Object.keys(F),k=P(ks),f=sh(F[k]),o=[f[1]];sh(ks.filter(x=>x!=k)).slice(0,3).forEach(x=>o.push(P(F[x])));return mc(`Which word rhymes with ${f[0]}?`,f[1],o,`Listen to the ending sound of ${f[0]}.`,`<div class='wd'>${f[0]}</div>`)},
+after:()=>{const i=R(0,24),L=AL[i];return mc(`Which letter comes after ${L.toUpperCase()}${L}?`,AL[i+1],lt(AL[i+1]),'Sing the ABC song to find it.')},
+small:()=>{const L=P(AL);return mc(`Which is the small letter for ${L.toUpperCase()}?`,L,lt(L),'Small letters are the lowercase ones.')},
+first:()=>{const w=P(W);return mc('What is the FIRST letter of this word?',w[0],lt(w[0]),'Say the word slowly. What sound comes first?',PIC[w])},
+last:()=>{const w=P(W);return mc('What is the LAST letter of this word?',w[2],lt(w[2]),'Say the word slowly. What sound comes last?',PIC[w])},
+last1:()=>{const w=P(W2),L=w[w.length-1];return mc('What is the LAST letter of this word?',L,lt(L),'Say the word slowly. What sound comes last?',PE[w])},
+mid:()=>{const w=P(W),m=w[1];return mc('What is the MIDDLE letter of this word?',m,(V.includes(m)?sh(V).filter(x=>x!=m).slice(0,3):sh(C).filter(x=>x!=m).slice(0,3)).concat(m),'Say the word slowly. What sound is in the middle?',PIC[w])},
+dg:()=>{const w=P(W2),d=PD[w],ds=[...new Set(Object.values(PD))];return mc('Which letters start this word?',d,sh(ds.filter(x=>x!=d)).slice(0,3).concat(d),`Say it slowly: ${w}.`,PE[w]+`<div class='wd'>__${w.slice(d.length)}</div>`)},
+magic:()=>{const[a,b]=P(ME);return mc(`Add a silent e to "${a}". New word?`,b,[b,a,a+'s','e'+a],'The silent e makes the vowel say its name.')},
+newword:()=>{const k=P(['at','an','ig','ot','un','ug','en']),f=sh(F[k].filter(x=>x.length==k.length+1)),a=f[0],b=f[1];return mc(`Change the first letter of ${a} to ${b[0]}. New word?`,b,[b,...f.slice(2,5)],`Swap ${a[0]} for ${b[0]} and keep -${k}.`)},
+sight1:spell(1),sight2:spell(2),sight3:spell(3),
+vt:tm(VT,['ai','ee','oa','ea']),rc:tm(RC,['ar','or','er','ir','ur']),
+cmp:()=>{const[a,b]=P(CP);return mc(`${a} + ${b} = ?`,a+b,[a+b,b+a,a+b.slice(1),a.slice(0,-1)+b],'Put the two words together to make one word.')},
+afx2:afx(PRE2,SUF2),afx3:afx(PRE3,SUF3),syl2:syl(x=>x[1]<=3),syl3:syl(x=>1),
+build2:()=>{const[a,b]=P(CP),w=a+b;return{t:'build',q:'Put the two words together. Tap the letters in order.',a:w,h:`${a} + ${b}`,v:`<div class="wd" style="font-size:26px;letter-spacing:0">${a} + ${b}</div>`,l:sh(w.split(''))}},
+build3:()=>{const w=P(SPW[3]);return{t:'build',q:'Unscramble the letters to spell the word.',a:w,h:`It starts with ${w[0]}.`,v:`<div class="mut">Starts with <b>${w[0]}</b> · ${w.length} letters</div>`,l:sh(w.split(''))}},
+contr:()=>{const[a,b]=P(CT);return mc(`Which is the contraction for "${a}"?`,b,[b,...sh(CT.map(x=>x[1]).filter(x=>x!=b)).slice(0,3)],'A contraction squeezes two words into one using an apostrophe.')},
+abbr:()=>{const[a,b]=P(AB);return mc(`What does "${a}" stand for?`,b,[b,...sh(AB.map(x=>x[1]).filter(x=>x!=b)).slice(0,3)],'An abbreviation is a short way to write a word.')},
+homo:()=>{const[s,a,b]=P(HM);return mc('Pick the right word.',a,[a,b],'Read the sentence. Which word fits?',`<div class="wd" style="font-size:22px;letter-spacing:0">${s}</div>`)}};
+// ===== WEEKLY SPELLING LISTS: add each new week at the END of this array (last = newest) =====
+const WORDS=[
+{u:1,w:1,sp:'graph stand chest fetch flip this clock shop just budge'.split(' '),hf:'a can and come are for big go has I'.split(' ')},
+{u:1,w:2,sp:'go we den no she napkin dentist problem open silent'.split(' '),hf:'have is jump my one put the want what you'.split(' ')},
+{u:1,w:3,sp:'April play blame stay cake mail chain paint break great'.split(' '),hf:'he like little no of saw this to we with'.split(' ')}
+];
+const dl=()=>{const N=WORDS[WORDS.length-1],tag=`Unit ${N.u} · Week ${N.w}`,nw=sh([...new Set([...N.sp,...N.hf])]),seen=new Set(nw),old=[];WORDS.slice(0,-1).forEach(x=>[...x.sp,...x.hf].forEach(w=>{if(!seen.has(w)){seen.add(w);old.push(w)}}));return[...nw.map(w=>({t:'dict',w,nw:1,tag})),...sh(old).slice(0,10).map(w=>({t:'dict',w}))]};
+const say=['🗣️ Say It','Read the word out loud, a grown-up checks',['say']];
+const LV={
+K:['Kindergarten',{say,miss:['🔤 Missing Letter','Find the missing letter',['miss']],typ:['⌨️ Type the Missing Letters','Pick from the whole keyboard',['typ0']],pick:['🖼️ Pick the Word','Match the picture to its word',['pick']],rhyme:['🎵 Rhymes','Same ending sound',['rhyme']],snd:['🔠 First, Middle & Last','Letters and sounds',['first','mid','last','after','small']],build:['🧩 Build the Word','Tap the letters in order',['build']]}],
+G1:['1st Grade',{say,typ:['⌨️ Type the Missing Letters','Pick from the whole keyboard',['typ1']],dg:['🔡 Blends & Digraphs','sh, ch, th, st, fr and more',['dg']],magic:['✨ Silent E','cap becomes cape',['magic']],newword:['🔄 Change a Letter','Make a new word',['newword']],sight:['👀 Sight Words','Which is spelled right?',['sight1']],snd:['🔠 Last Letter & Pictures','Letters and sounds',['last1','pick1']],build:['🧩 Build the Word','Tap the letters in order',['build1']]}],
+G2:['2nd Grade',{typ:['⌨️ Type the Missing Letters','Tricky vowels: ai, ea, ir, oo...',['typ2']],dict:['✍️ Spelling Words','Show a word, child writes it on paper',['dict']],vt:['🅰️ Vowel Teams','ai, ee, oa, ea',['vt']],rc:['🌀 Bossy R','ar, or, er, ir, ur',['rc']],cmp:['➕ Compound Words','Two words make one',['cmp']],afx:['🔧 Prefixes & Suffixes','un-, re-, -ful, -less',['afx2']],syl:['👏 Syllables','Count the beats',['syl2']],sight:['👀 Sight Words','Which is spelled right?',['sight2']],build:['🧩 Build the Word','Put words together',['build2']]}],
+G3:['3rd Grade',{afx:['🔧 Prefixes & Suffixes','dis-, mis-, -ly, -ness',['afx3']],contr:['✂️ Contractions','do not → don\'t',['contr']],abbr:['📝 Abbreviations','Dr., St., Mon.',['abbr']],homo:['🔀 Look-alike Words','see or sea? know or no?',['homo']],syl:['👏 Syllables','Longer words',['syl3']],sight:['👀 Spelling Words','Which is spelled right?',['sight3']],build:['🧩 Unscramble','Spell the word',['build3']]}]};
+const TR={K:[['first','after','small','pick'],['miss','last','rhyme'],['mid','build']],G1:[['dg','newword','pick1'],['magic','sight1','last1'],['build1','rhyme']],G2:[['vt','sight2','cmp'],['rc','afx2','syl2'],['build2']],G3:[['afx3','sight3','syl3'],['contr','abbr','homo'],['build3']]};
+const app=document.getElementById('app');let S={};
+let DB={cur:'',kids:{}};try{DB=JSON.parse(localStorage.getItem('wt_db'))||DB}catch(e){}
+const sv=()=>{try{localStorage.setItem('wt_db',JSON.stringify(DB))}catch(e){}},kid=()=>DB.kids[DB.cur]||{h:[],st:[],t:{}},stg=l=>(kid().t||{})[l]||0;
+function home(){const ks=Object.keys(DB.kids),k=kid();app.innerHTML='<h1>📚 Word Tutor</h1>'+(ks.length?`<div class="chips">${ks.map(n=>`<button class="chip${n==DB.cur?' on':''}" onclick='who(${JSON.stringify(n)})'>${esc(n)}</button>`).join('')}<button class="chip" onclick="addKid()">＋ Add</button></div>`+Object.keys(LV).map(l=>`<button class="lv" onclick="lvl('${l}')"><b>${LV[l][0]}</b><span>Learning Path stage ${stg(l)+1}/${TR[l].length}</span></button>`).join('')+`<div class="bar"><button class="ghost" onclick="prog()">📈 Progress</button></div><div class="st">${k.st.join('')||'<span class="mut" style="font-size:15px">Score 7 out of 10 to win a sticker!</span>'}</div>`:'<p class="mut">Who is playing? Type a name:</p><input id="nm" placeholder="Name"><button class="go" onclick="addKid()">Start</button>')}
+function who(n){DB.cur=n;sv();home()}
+function addKid(){const el=$('nm');if(!el){app.innerHTML='<h1>New player</h1><input id="nm" placeholder="Name"><button class="go" onclick="addKid()">Save</button>';return}const n=el.value.trim().slice(0,12);if(!n)return;DB.kids[n]=DB.kids[n]||{h:[],st:[],t:{}};DB.cur=n;sv();home()}
+function lvl(l){const A=LV[l][1];app.innerHTML=`<div class="bar"><button class="ghost" onclick="home()">← Home</button></div><h1>${LV[l][0]}</h1><button class="lv" onclick="start('${l}','path')"><b>🧭 Learning Path</b><span>Starts easy, moves up as answers get right · Stage ${stg(l)+1}/${TR[l].length}</span></button>`+Object.keys(A).map(m=>`<button class="lv" onclick="start('${l}','${m}')"><b>${A[m][0]}</b><span>${A[m][1]}</span></button>`).join('')}
+const gens=()=>S.m=='path'?[...TR[S.l][S.t],...(S.t?TR[S.l][S.t-1]:[])]:LV[S.l][1][S.m][2];
+function start(l,m){let list=null;if(m=='dict'){list=dl()}else if(m=='say'){list=[];sh(Object.keys(F)).slice(0,2).forEach(k=>sh(F[k]).slice(0,5).forEach(w=>list.push({t:'say',w,k})))}S={l,m,i:0,n:list?list.length:10,score:0,miss:[],list,seen:new Set(),t:stg(l),rec:[],up:0};next()}
+function next(){if(S.i>=S.n)return results();let q;if(S.list)q=S.list[S.i];else{for(let k=0;k<30;k++){q=GN[P(gens())]();if(!S.seen.has(q.q+q.v+q.a))break}S.seen.add(q.q+q.v+q.a)}S.q=q;S.done=0;S.tried=0;S.used=[];S.i++;show()}
+function show(){const q=S.q;let b;if(q.t=='say'){const p=q.w.slice(0,q.w.length-q.k.length);b=`<div class="wd">${p}<b>${q.k}</b></div><div class="mut">Word family: <b>-${q.k}</b>. Say it out loud, then tap:</div><div class="opts"><button class="opt" onclick="chk(1)">✅ Got it</button><button class="opt" onclick="chk(0)">🔁 Not yet</button></div>`}
+else if(q.t=='dict')b=`<div class="mut">${q.nw?'⭐ Newest words · '+esc(q.tag):'Review words'}</div><div class="wd" style="letter-spacing:2px;font-size:56px;word-break:break-all">${esc(q.w)}</div><div class="mut">Say the word, then have your child write it on paper.</div><button class="go" onclick="next()">${S.i>=S.n?'Finish':'Next →'}</button>`;else if(q.t=='type')b=`<div class="vis">${q.v}</div><h2>${q.q}</h2><div class="wd" id="tw"></div><div id="kb"></div><div id="fb"></div>`;else if(q.t=='build')b=`${q.v?`<div class="vis">${q.v}</div>`:''}<h2>${q.q}</h2><div class="wd" id="bw"></div><div class="tiles" id="tl"></div><button class="ghost" onclick="bu()">⌫ Undo</button><div id="fb"></div>`;
+else b=`${q.v?`<div class="vis">${q.v}</div>`:''}<h2>${q.q}</h2><div class="opts">${q.o.map(o=>`<button class="opt" onclick="ans(this.textContent)">${esc(o)}</button>`).join('')}</div><div id="fb"></div>`;
+app.innerHTML=`<div class="bar"><button class="ghost" onclick="lvl(S.l)">← Back</button><span>⭐ ${S.score}</span></div><div class="prog"><i style="width:${(S.i-1)*100/S.n}%"></i></div><div class="card"><div class="mut">${S.i} of ${S.n}</div>${b}</div>`;if(q.t=='build')bdraw();if(q.t=='type')tdraw()}
+function bdraw(){const q=S.q;$('bw').textContent=S.used.map(i=>q.l[i]).join('')||'…';$('tl').innerHTML=q.l.map((c,i)=>`<button class="tile" ${S.used.includes(i)?'disabled':''} onclick="bt(${i})">${c}</button>`).join('')}
+function bt(i){if(S.done||S.used.includes(i))return;S.used.push(i);bdraw();if(S.used.length==S.q.l.length)ans(S.used.map(j=>S.q.l[j]).join(''))}
+function bu(){if(S.done)return;S.used.pop();bdraw()}
+function tdraw(){const q=S.q;$('tw').innerHTML=q.a.split('').map((c,i)=>{const k=q.b.indexOf(i);return k<0?esc(c):'<b>'+esc(S.used[k]||'_')+'</b>'}).join('');$('kb').innerHTML=['qwertyuiop','asdfghjkl','zxcvbnm'].map((r,j)=>'<div class="kr">'+r.split('').map(c=>`<button class="kk" onclick="tk('${c}')">${c}</button>`).join('')+(j==2?'<button class="kk" style="flex:1.6;max-width:72px" onclick="tu()">⌫</button>':'')+'</div>').join('')}
+function tk(c){const q=S.q;if(S.done||S.used.length>=q.b.length)return;S.used.push(c);tdraw();if(S.used.length==q.b.length){let k=0;ans(q.a.split('').map((ch,i)=>q.b.includes(i)?S.used[k++]:ch).join(''))}}
+function tu(){if(S.done)return;S.used.pop();tdraw()}
+function adapt(ok){if(S.m!='path')return;const T=TR[S.l];S.up=0;S.rec.push(ok?1:0);const r=S.rec.slice(-5);if(r.length<5)return;const c=r.reduce((a,b)=>a+b);if(c>=4&&S.t<T.length-1){S.t++;S.rec=[];S.up=1}else if(c<=2&&S.t>0){S.t--;S.rec=[]}}
+function chk(ok){if(ok)S.score++;else S.miss.push(S.q.w);next()}
+function ans(v){if(S.done)return;const q=S.q,ok=v==q.a;if(!ok&&!S.tried){S.tried=1;S.miss.push(q.a);adapt(0);document.querySelectorAll('.opt').forEach(b=>{if(b.textContent==v){b.disabled=true;b.classList.add('bad')}});$('fb').innerHTML=`<div class="nope">Not quite. Try one more time! 💪</div><div class="hint">💡 ${q.h}</div>`;if(q.t=='build'){S.used=[];bdraw()}else if(q.t=='type'){S.used=[];tdraw()}return}
+S.done=1;if(ok&&!S.tried){S.score++;adapt(1)}document.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(b.textContent==q.a)b.classList.add('ok');else if(b.textContent==v)b.classList.add('bad')});
+$('fb').innerHTML=`<div class="${ok?'good':'nope'}">${ok?P(['Great job! 🎉','Yes! 🌟','You got it! 💪']):`The answer is <b>${esc(q.a)}</b>.`}</div>${S.up?'<div class="good">⬆️ Level up! Harder words coming.</div>':''}<button class="go" onclick="next()">${S.i>=S.n?'See results':'Next →'}</button>`}
+function results(){if(S.m=='dict'){app.innerHTML=`<div class="card"><h1>🎉 All done!</h1><p>${S.n} words practiced.</p><button class="go" onclick="start('G2','dict')">Play again</button><button class="ghost w" onclick="lvl('G2')">Change activity</button></div>`;return}const s=S.score,n=S.n,m=[...new Set(S.miss)],win=s>=n*.7,stk=P(['⭐','🦄','🚀','🐱','🐶','🌈','🦖','🍦','🎈','🐼','🦋','🏆']),K=DB.kids[DB.cur];K.h.push({l:S.l,s,n,d:new Date().toISOString().slice(0,10)});if(win)K.st.push(stk);if(S.m=='path'){K.t=K.t||{};K.t[S.l]=S.t}sv();
+app.innerHTML=`<div class="card"><h1>${s>=n-1?'🏆':win?'🌟':'💪'} ${s} / ${n}</h1><p>${LV[S.l][0]} · ${s>=n-1?'Amazing work!':win?'Great job!':'Practice makes progress!'}</p>${win?`<div class="vis">${stk}</div><p><b>New sticker!</b> 🎉</p>`:''}${m.length?`<h3>Practice these</h3><div>${m.map(x=>`<span class="chip">${esc(x)}</span>`).join('')}</div>`:'<p>Perfect round! 🎉</p>'}<button class="go" onclick="start('${S.l}','${S.m}')">Play again</button><button class="ghost w" onclick="lvl('${S.l}')">Change activity</button></div>`}
+function prog(){const h=kid().h,t=h.slice(-12),av=h.length?Math.round(h.reduce((a,x)=>a+x.s/x.n,0)/h.length*100):0;app.innerHTML=`<div class="bar"><button class="ghost" onclick="home()">← Home</button></div><div class="card"><h2>📈 ${esc(DB.cur)}'s progress</h2>`+(h.length?`<p>${h.length} rounds · average ${av}% correct</p><div class="bars">${t.map(x=>`<div><div class="b" style="height:${x.s/x.n*100}%">${x.s}</div><small>${x.l.replace('G','')}</small></div>`).join('')}</div><p class="mut">Last ${t.length} rounds. K = Kindergarten, 1–3 = grade.</p>`:'<p>No rounds yet. Play one!</p>')+'</div>'}
+home();
+</script></body></html>
